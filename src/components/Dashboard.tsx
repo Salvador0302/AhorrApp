@@ -49,30 +49,30 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   ];
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-500/10 to-green-500/10 backdrop-blur-md rounded-2xl border border-white/10 p-4 lg:p-6">
-        <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">
+      <div className="bg-gradient-to-r from-blue-500/10 to-green-500/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
+        <h2 className="text-2xl font-bold text-white mb-2">
           ¡Bienvenido de vuelta, {user?.name}! 👋
         </h2>
-        <p className="text-white/70 text-sm lg:text-base">
+        <p className="text-white/70">
           Aquí tienes un resumen de tu consumo energético y recomendaciones personalizadas.
         </p>
       </div>
 
       {/* Real-time Status */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <Activity className="w-4 h-4 lg:w-6 lg:h-6 text-blue-400" />
+            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <Activity className="w-6 h-6 text-blue-400" />
             </div>
             <div>
-              <p className="text-white/70 text-xs lg:text-sm">Consumo Actual</p>
-              <p className="text-white font-semibold text-sm lg:text-base">{realTimeData.currentConsumption} kW</p>
+              <p className="text-white/70 text-sm">Consumo Actual</p>
+              <p className="text-white font-semibold">{realTimeData.currentConsumption} kW</p>
             </div>
           </div>
-          <div className="mt-2 lg:mt-3">
+          <div className="mt-3">
             <div className="w-full bg-white/10 rounded-full h-2">
               <div 
                 className="bg-gradient-to-r from-blue-400 to-green-400 h-2 rounded-full transition-all duration-1000"
@@ -84,36 +84,36 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
         <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
-              <Thermometer className="w-4 h-4 lg:w-6 lg:h-6 text-orange-400" />
+            <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+              <Thermometer className="w-6 h-6 text-orange-400" />
             </div>
             <div>
-              <p className="text-white/70 text-xs lg:text-sm">Temperatura</p>
-              <p className="text-white font-semibold text-sm lg:text-base">{realTimeData.temperature}°C</p>
+              <p className="text-white/70 text-sm">Temperatura</p>
+              <p className="text-white font-semibold">{realTimeData.temperature}°C</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center">
-              <Wind className="w-4 h-4 lg:w-6 lg:h-6 text-cyan-400" />
+            <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+              <Wind className="w-6 h-6 text-cyan-400" />
             </div>
             <div>
-              <p className="text-white/70 text-xs lg:text-sm">Humedad</p>
-              <p className="text-white font-semibold text-sm lg:text-base">{realTimeData.humidity}%</p>
+              <p className="text-white/70 text-sm">Humedad</p>
+              <p className="text-white font-semibold">{realTimeData.humidity}%</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-              <Sun className="w-4 h-4 lg:w-6 lg:h-6 text-yellow-400" />
+            <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+              <Sun className="w-6 h-6 text-yellow-400" />
             </div>
             <div>
-              <p className="text-white/70 text-xs lg:text-sm">Estado AC</p>
-              <p className="text-white font-semibold text-sm lg:text-base">
+              <p className="text-white/70 text-sm">Estado AC</p>
+              <p className="text-white font-semibold">
                 {realTimeData.isAcOn ? 'Encendido' : 'Apagado'}
               </p>
             </div>
@@ -129,7 +129,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             onClick={() => setSelectedPeriod(period.id)}
             className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
               selectedPeriod === period.id
-                ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg text-sm lg:text-base'
+                ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
                 : 'bg-white/10 text-white/70 hover:text-white hover:bg-white/20'
             }`}
           >
@@ -143,7 +143,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-4 lg:p-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
           <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
             <Zap className="w-5 h-5 text-blue-400" />
             Consumo Energético
@@ -151,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <EnergyChart period={selectedPeriod} />
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-4 lg:p-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
           <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-400" />
             Predicción IA
@@ -161,25 +161,25 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-4 lg:p-6">
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
         <h3 className="text-white font-semibold text-lg mb-4">Acciones Rápidas</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button className="bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-400/30 rounded-xl p-4 text-left hover:from-blue-500/30 hover:to-blue-600/30 transition-all">
-            <Calendar className="w-6 h-6 lg:w-8 lg:h-8 text-blue-400 mb-2" />
+            <Calendar className="w-8 h-8 text-blue-400 mb-2" />
             <p className="text-white font-medium">Programar Dispositivos</p>
-            <p className="text-white/70 text-xs lg:text-sm">Optimiza horarios de uso</p>
+            <p className="text-white/70 text-sm">Optimiza horarios de uso</p>
           </button>
           
           <button className="bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-400/30 rounded-xl p-4 text-left hover:from-green-500/30 hover:to-green-600/30 transition-all">
-            <TrendingDown className="w-6 h-6 lg:w-8 lg:h-8 text-green-400 mb-2" />
+            <TrendingDown className="w-8 h-8 text-green-400 mb-2" />
             <p className="text-white font-medium">Modo Ahorro</p>
-            <p className="text-white/70 text-xs lg:text-sm">Activa el modo eficiente</p>
+            <p className="text-white/70 text-sm">Activa el modo eficiente</p>
           </button>
           
           <button className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 border border-purple-400/30 rounded-xl p-4 text-left hover:from-purple-500/30 hover:to-purple-600/30 transition-all">
-            <DollarSign className="w-6 h-6 lg:w-8 lg:h-8 text-purple-400 mb-2" />
+            <DollarSign className="w-8 h-8 text-purple-400 mb-2" />
             <p className="text-white font-medium">Reporte Costos</p>
-            <p className="text-white/70 text-xs lg:text-sm">Análisis detallado</p>
+            <p className="text-white/70 text-sm">Análisis detallado</p>
           </button>
         </div>
       </div>
