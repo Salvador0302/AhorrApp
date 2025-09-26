@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Zap, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Zap, Mail, Lock, User, Eye, EyeOff, Smartphone } from 'lucide-react';
 
 interface AuthScreenProps {
-  onLogin: (user: any) => void;
+  onLogin: (user: { id: string; name: string; email: string; joinDate: string }) => void;
 }
 
 const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
@@ -19,7 +19,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
     
     // Simulate authentication
     const userData = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name: isLogin ? 'Usuario Demo' : formData.name,
       email: formData.email,
       joinDate: new Date().toISOString()
@@ -37,26 +37,30 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm">
         {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-12 h-12 text-white" />
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Zap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2">
             AhorrApp
           </h1>
-          <p className="text-white/70 text-lg">
+          <p className="text-white/70 text-base">
             Optimiza tu consumo energético con IA
           </p>
+          <div className="flex items-center justify-center gap-2 mt-2 text-white/50">
+            <Smartphone className="w-4 h-4" />
+            <span className="text-sm">Versión Móvil</span>
+          </div>
         </div>
 
         {/* Auth Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 shadow-2xl">
-          <div className="flex mb-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
+          <div className="flex mb-4">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all text-sm ${
                 isLogin
                   ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
                   : 'text-white/70 hover:text-white'
@@ -66,7 +70,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all text-sm ${
                 !isLogin
                   ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
                   : 'text-white/70 hover:text-white'
@@ -79,7 +83,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
-                <label className="block text-white/90 font-medium mb-2">
+                <label className="block text-white/90 font-medium mb-1 text-sm">
                   Nombre completo
                 </label>
                 <div className="relative">
@@ -89,7 +93,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     placeholder="Tu nombre completo"
                     required={!isLogin}
                   />
@@ -98,7 +102,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             )}
 
             <div>
-              <label className="block text-white/90 font-medium mb-2">
+              <label className="block text-white/90 font-medium mb-1 text-sm">
                 Correo electrónico
               </label>
               <div className="relative">
@@ -108,7 +112,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="tu@email.com"
                   required
                 />
@@ -116,7 +120,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
             </div>
 
             <div>
-              <label className="block text-white/90 font-medium mb-2">
+              <label className="block text-white/90 font-medium mb-1 text-sm">
                 Contraseña
               </label>
               <div className="relative">
@@ -126,7 +130,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-12 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-12 pr-12 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="••••••••"
                   required
                 />
@@ -157,7 +161,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
           )}
         </div>
 
-        <div className="text-center mt-6 text-white/50 text-sm">
+        <div className="text-center mt-4 text-white/50 text-xs">
           Demo: Puedes usar cualquier email y contraseña para probar la aplicación
         </div>
       </div>
