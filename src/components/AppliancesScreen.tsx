@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Plus, Edit3, Trash2, ArrowLeft, Zap } from 'lucide-react';
+import { Camera, Plus, CreditCard as Edit3, Trash2, ArrowLeft, Zap } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface Appliance {
