@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { formatCurrency } from '../utils/currency';
-import { Camera, Upload, FileText, TrendingUp, TrendingDown, Info, ArrowLeft } from 'lucide-react';
+import { Camera, Upload, FileText, TrendingUp, TrendingDown, Info, ArrowLeft, CheckCircle } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface Receipt {
@@ -21,6 +21,8 @@ interface ReceiptScreenProps {
 
 const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt, onNavigate }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  // Estado para mostrar banner de éxito inmediatamente después de procesar
+  const [justProcessed, setJustProcessed] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +48,9 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
           
           onReceiptUpload(mockReceipt);
           setIsAnalyzing(false);
+          setJustProcessed(true);
+          // Ocultar mensaje de éxito tras unos segundos
+          setTimeout(() => setJustProcessed(false), 6000);
         }, 3000);
       };
       reader.readAsDataURL(file);
@@ -154,6 +159,15 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
               <FileText className="w-5 h-5 text-green-400" />
               Resumen de tu Recibo
             </h3>
+            {justProcessed && (
+              <div className="mb-5 flex items-start gap-3 bg-green-500/15 border border-green-400/30 rounded-xl p-4 animate-fade-in">
+                <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="text-green-300 font-medium">¡Recibo procesado con éxito!</p>
+                  <p className="text-white/70 mt-1">Hemos extraído los datos clave y generado conclusiones iniciales basadas en tu consumo.</p>
+                </div>
+              </div>
+            )}
             
             {receipt.image && (
               <div className="mb-4">
@@ -208,6 +222,40 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
                 </div>
               </div>
             </div>
+
+            {/* Conclusiones de la IA (mock) */}
+            {(() => {
+              const conclusions: string[] = [];
+              conclusions.push(
+                `El consumo del período (${receipt.period}) es de ${receipt.consumption} kWh` +
+                (receipt.previousConsumption ? ` (${receipt.consumption > receipt.previousConsumption ? '↑' : '↓'} ${Math.abs(receipt.consumption - receipt.previousConsumption)} kWh vs mes anterior).` : '.')
+              );
+              conclusions.push(
+                `El monto estimado a pagar es ${formatCurrency(receipt.amount)} con vencimiento el ${new Date(receipt.dueDate).toLocaleDateString('es-ES')}.`
+              );
+              if (receipt.previousConsumption) {
+                if (receipt.consumption > receipt.previousConsumption) {
+                  conclusions.push('Se detecta un incremento de consumo que podría relacionarse con mayor uso de climatización o electrodomésticos de alto consumo.');
+                } else if (receipt.consumption < receipt.previousConsumption) {
+                  conclusions.push('Lograste reducir tu consumo respecto al mes anterior, sigue aplicando buenas prácticas.');
+                }
+              }
+              conclusions.push('Recomendación rápida: identifica aparatos que permanecen en modo espera y desconéctalos cuando no se usen.');
+              conclusions.push('Considera revisar el horario de uso de equipos de alto consumo para desplazar parte de la demanda a horas de menor tarifa.');
+              return (
+                <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-5">
+                  <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    Conclusiones del Análisis
+                  </h4>
+                  <ul className="list-disc pl-5 space-y-2">
+                    {conclusions.map((c, i) => (
+                      <li key={i} className="text-white/80 text-sm leading-relaxed">{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Quick Actions */}
