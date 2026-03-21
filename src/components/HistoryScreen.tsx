@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, TrendingUp, TrendingDown, DollarSign, Zap, ArrowLeft } from 'lucide-react';
+// Imágenes estáticas de proyección (reemplazan la curva dinámica previa)
+import proj7d from '../assets/projections/7dias.png';
+import projMes from '../assets/projections/1mes.png';
+import projAnio from '../assets/projections/1año.png';
 import { formatCurrency } from '../utils/currency';
 import type { Screen } from '../App';
 
@@ -19,6 +23,13 @@ interface HistoryRecord {
 
 const HistoryScreen: React.FC<HistoryScreenProps> = ({ onNavigate }) => {
   const [filter, setFilter] = useState<'all' | 'paid' | 'pending'>('all');
+  const [view, setView] = useState<'7d' | '1m' | '1y'>('7d');
+  useEffect(() => {
+    const stored = localStorage.getItem('history_view');
+    if (stored === '7d' || stored === '1m' || stored === '1y') {
+      setView(stored);
+    }
+  }, []);
 
   // Mock history data
   const historyData: HistoryRecord[] = [
@@ -87,72 +98,8 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onNavigate }) => {
   const averageConsumption = historyData.reduce((sum, record) => sum + record.consumption, 0) / historyData.length;
   const totalPaid = historyData.reduce((sum, record) => sum + record.amount, 0);
 
-  // Utilidad para suavizar polyline (path tipo "M x,y L x,y ...") a curvas cúbicas (usada en proyección diaria)
-  const smoothPath = (polyPath: string): string => {
-    if (!polyPath) return '';
-    const tokens = polyPath.trim().split(/\s+/);
-    const points: Array<{x:number;y:number}> = [];
-    for (const token of tokens) {
-      const coords = token.slice(1).split(','); // quitar comando M/L
-      if (coords.length === 2) {
-        const x = parseFloat(coords[0]);
-        const y = parseFloat(coords[1]);
-        if (!Number.isNaN(x) && !Number.isNaN(y)) points.push({x,y});
-      }
-    }
-    if (points.length < 3) return polyPath; // no vale la pena suavizar
-    const result: string[] = [];
-    result.push(`M${points[0].x},${points[0].y}`);
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i === 0 ? i : i - 1];
-      const p1 = points[i];
-      const p2 = points[i + 1];
-      const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
-      const smoothing = 0.18;
-      const cp1x = p1.x + (p2.x - p0.x) * smoothing;
-      const cp1y = p1.y + (p2.y - p0.y) * smoothing;
-      const cp2x = p2.x - (p3.x - p1.x) * smoothing;
-      const cp2y = p2.y - (p3.y - p1.y) * smoothing;
-      result.push(`C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`);
-    }
-    return result.join(' ');
-  };
-  // Referencia preventiva para linter (ya se invoca en JSX más abajo)
-  void smoothPath;
-
-  // Proyección diaria (7 días pasados simulados + 7 días futuros)
-  const daysHistory = 7;
-  const daysFuture = 7;
-  const baseDaily = averageConsumption / 30;
-  const now = new Date();
-  const pastDays = Array.from({ length: daysHistory }).map((_, idx) => {
-    // idx 0 = día más antiguo
-    const date = new Date(now);
-    date.setDate(now.getDate() - (daysHistory - idx));
-    const noise = 1 + ((Math.random() - 0.5) * 0.15); // +-15%
-    const value = Math.max(1, Math.round(baseDaily * noise));
-    return {
-      label: date.getDate().toString().padStart(2,'0'),
-      value,
-      isFuture: false
-    };
-  });
-  const lastPast = pastDays[pastDays.length - 1].value;
-  const slope = (pastDays[pastDays.length - 1].value - pastDays[0].value) / pastDays.length / 5; // tendencia suave
-  const futureDays = Array.from({ length: daysFuture }).map((_, i) => {
-    const date = new Date(now);
-    date.setDate(now.getDate() + (i + 1));
-    const trendComponent = slope * i;
-    const noise = 1 + ((Math.random() - 0.5) * 0.12); // +-12%
-    const value = Math.max(1, Math.round((lastPast + trendComponent) * noise));
-    return {
-      label: date.getDate().toString().padStart(2,'0'),
-      value,
-      isFuture: true
-    };
-  });
-  const combinedForCurve = [...pastDays, ...futureDays];
-  const maxCurve = Math.max(...combinedForCurve.map(p => p.value)) * 1.1;
+  // Se eliminó la generación dinámica de curva y datos sintéticos.
+  // Ahora solo se muestran imágenes estáticas provistas por el usuario.
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -242,82 +189,49 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Daily Projection Section */}
+      {/* Projection Tabs */}
       <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
-        <h3 className="text-white font-semibold mb-1 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-green-400" />
-          Proyección Próximos {daysFuture} Días
-        </h3>
-        <p className="text-white/60 text-xs mb-4">Basada en tu consumo diario estimado actual.</p>
-        <div className="h-40 relative">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {/* Líneas guía */}
-            {[25,50,75].map(g => (
-              <line key={g} x1="0" y1={g} x2="100" y2={g} stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-            ))}
-            {(() => {
-              const points = combinedForCurve.map((p, idx) => {
-                const x = (idx / (combinedForCurve.length - 1)) * 100;
-                const y = 100 - (p.value / maxCurve) * 100;
-                return { x, y, future: p.isFuture };
-              });
-              let lastPastIndex = 0;
-              for (let i = points.length - 1; i >= 0; i--) {
-                if (!points[i].future) { lastPastIndex = i; break; }
-              }
-              const pastPath = points.filter((_,i)=> i<= lastPastIndex).map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');
-              const futurePath = points.filter((_,i)=> i>= lastPastIndex).map((pt,i)=>`${i===0?'M':'L'}${pt.x},${pt.y}`).join(' ');
-              return (
-                <g>
-                  {/* Área pasado */}
-                  <path d={`${pastPath} L100,100 L0,100 Z`} fill="url(#fillPast)" opacity="0.25" />
-                  {/* Línea pasada */}
-                  <path d={pastPath} fill="none" stroke="#000" strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round" />
-                  {/* Línea futura */}
-                  <path d={futurePath} fill="none" strokeDasharray="3 3" stroke="url(#gradFutureDays)" strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round" />
-                  {/* Puntos */}
-                  {points.map((pt,i)=> (
-                    <circle key={i} cx={pt.x} cy={pt.y} r={pt.future?2.2:2.2} fill={pt.future? 'url(#dotFuture)' : '#000'} stroke={pt.future? 'rgba(255,255,255,0.5)' : 'none'} strokeWidth={0.6} />
-                  ))}
-                  <defs>
-                    <linearGradient id="gradFutureDays" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#6366f1" />
-                    </linearGradient>
-                    <linearGradient id="fillPast" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#000" stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id="dotFuture" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#6366f1" />
-                    </linearGradient>
-                  </defs>
-                </g>
-              );
-            })()}
-          </svg>
-          {/* Etiquetas inferiores */}
-          <div className="absolute inset-0 flex items-end justify-between text-[10px] px-1 pb-1">
-            {combinedForCurve.map((p,i)=>(
-              <span key={i} className={`text-white/50 ${p.isFuture ? 'opacity-80' : ''}`}>{p.label}</span>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-white font-semibold flex items-center gap-2">
+            <Zap className="w-5 h-5 text-green-400" />
+            Consumo y Proyección
+          </h3>
+          <div className="flex gap-2 text-xs">
+            {[
+              { id: '7d', label: '7 días' },
+              { id: '1m', label: '1 mes' },
+              { id: '1y', label: '1 año' }
+            ].map(btn => (
+              <button
+                key={btn.id}
+                onClick={() => { setView(btn.id as any); localStorage.setItem('history_view', btn.id); }}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  view === btn.id
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow'
+                    : 'bg-white/10 text-white/60 hover:text-white'
+                }`}
+              >
+                {btn.label}
+              </button>
             ))}
           </div>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-          <div className="bg-white/5 rounded p-2">
-            <p className="text-white/50">Prom. Día</p>
-            <p className="text-white font-semibold">{Math.round(baseDaily)} kWh</p>
+        {view === '7d' && (
+          <div className="mb-4 w-full overflow-hidden rounded-lg border border-white/10">
+            <img src={proj7d} alt="Proyección 7 días" className="w-full h-auto" />
           </div>
-          <div className="bg-white/5 rounded p-2">
-            <p className="text-white/50">Mañana</p>
-            <p className="text-green-400 font-semibold">{futureDays[0]?.value} kWh</p>
+        )}
+        {view === '1m' && (
+          <div className="mb-4 w-full overflow-hidden rounded-lg border border-white/10">
+            <img src={projMes} alt="Consumo último mes" className="w-full h-auto" />
           </div>
-          <div className="bg-white/5 rounded p-2">
-            <p className="text-white/50">Var vs Hoy</p>
-            <p className="text-white font-semibold">{futureDays[0] ? (((futureDays[0].value - lastPast)/ lastPast)*100).toFixed(1) : '0'}%</p>
+        )}
+        {view === '1y' && (
+          <div className="mb-4 w-full overflow-hidden rounded-lg border border-white/10">
+            <img src={projAnio} alt="Consumo último año" className="w-full h-auto" />
           </div>
-        </div>
+        )}
+        {/* Se removieron descripción, curva y métricas dinámicas para usar solo las imágenes proporcionadas. */}
       </div>
 
       {/* Filter */}

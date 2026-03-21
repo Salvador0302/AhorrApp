@@ -1,4 +1,8 @@
 import React from 'react';
+// Ajuste: cambiamos a PNG (los SVG ya no existen)
+import proj7d from '../assets/projections/7dias.png';
+import projMes from '../assets/projections/1mes.png';
+import projAnio from '../assets/projections/1año.png';
 import { formatCurrency } from '../utils/currency';
 import { Zap, TrendingUp, DollarSign, Camera, FileText, Lightbulb } from 'lucide-react';
 import type { Screen } from '../App';
@@ -196,6 +200,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
           </div>
         </div>
       )}
+
+      {/* Proyecciones (Previews) */}
+      <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-semibold text-lg">Consumo & Proyección</h3>
+          <button
+            onClick={() => onNavigate('history')}
+            className="text-xs text-blue-400 hover:text-blue-300"
+          >Ver más</button>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { id: '7d', img: proj7d, label: '7 días' },
+            { id: '1m', img: projMes, label: '1 mes' },
+            { id: '1y', img: projAnio, label: '1 año' }
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => { localStorage.setItem('history_view', item.id); onNavigate('history'); }}
+              className="group relative rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-colors"
+            >
+              <img src={item.img} alt={`Proyección ${item.label}`} className="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+              <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] py-1 text-center font-medium backdrop-blur-sm">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

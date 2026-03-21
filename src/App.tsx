@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Zap } from 'lucide-react';
+// Ajuste: no existe logo.svg, usamos logo.jpg
+import logoImg from './assets/logo.jpg';
 import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
 import ReceiptScreen from './components/ReceiptScreen';
@@ -129,8 +130,8 @@ function App() {
       <header className="bg-black/20 backdrop-blur-md border-b border-white/10 px-4 py-3 sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-green-400 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src={logoImg} alt="AhorrApp" className="w-8 h-8 object-cover" />
             </div>
             <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
               AhorrApp
