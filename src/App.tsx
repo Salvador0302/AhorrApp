@@ -10,8 +10,13 @@ import PaymentScreen from './components/PaymentScreen';
 import HistoryScreen from './components/HistoryScreen';
 import DataAssistant from './components/DataAssistant';
 import AdvisorAssistant from './components/AdvisorAssistant';
-
-export type Screen = 'home' | 'receipt' | 'appliances' | 'recommendations' | 'payment' | 'history';
+import { 
+  getLatestReceipt, 
+  getAllAppliances, 
+  saveReceipt as saveReceiptToDB, 
+  saveAppliance as saveApplianceToDB, 
+  updateAppliance as updateApplianceInDB
+} from './services/database';export type Screen = 'home' | 'receipt' | 'appliances' | 'recommendations' | 'payment' | 'history';
 
 interface User {
   id: string;
@@ -48,21 +53,43 @@ function App() {
   const [appliances, setAppliances] = useState<Appliance[]>([]);
   const [showAssistant, setShowAssistant] = useState(true);
 
-  // Simulate checking for existing session
+  // Load data from database on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('ahorrapp_user');
-    const savedReceipt = localStorage.getItem('ahorrapp_receipt');
-    const savedAppliances = localStorage.getItem('ahorrapp_appliances');
     
     if (savedUser) {
       setUser(JSON.parse(savedUser));
       setIsAuthenticated(true);
     }
-    if (savedReceipt) {
-      setReceipt(JSON.parse(savedReceipt));
+    
+    // Cargar desde la base de datos
+    const latestReceipt = getLatestReceipt();
+    const allAppliances = getAllAppliances();
+    
+    if (latestReceipt) {
+      // Convertir ReceiptRecord a Receipt
+      setReceipt({
+        id: latestReceipt.id,
+        period: latestReceipt.period,
+        consumption: latestReceipt.consumption,
+        amount: latestReceipt.amount,
+        dueDate: latestReceipt.dueDate,
+        previousConsumption: latestReceipt.previousConsumption,
+        image: latestReceipt.image
+      });
     }
-    if (savedAppliances) {
-      setAppliances(JSON.parse(savedAppliances));
+    
+    if (allAppliances.length > 0) {
+      // Convertir ApplianceRecord[] a Appliance[]
+      setAppliances(allAppliances.map(a => ({
+        id: a.id,
+        name: a.name,
+        type: a.type,
+        consumption: a.consumption,
+        hoursPerDay: a.hoursPerDay,
+        image: a.image,
+        detected: a.detected
+      })));
     }
   }, []);
 
@@ -85,13 +112,31 @@ function App() {
 
   const handleReceiptUpload = (receiptData: Receipt) => {
     setReceipt(receiptData);
-    localStorage.setItem('ahorrapp_receipt', JSON.stringify(receiptData));
+    // Guardar en la base de datos
+    saveReceiptToDB({
+      id: receiptData.id,
+      period: receiptData.period,
+      consumption: receiptData.consumption,
+      amount: receiptData.amount,
+      dueDate: receiptData.dueDate,
+      previousConsumption: receiptData.previousConsumption,
+      image: receiptData.image
+    });
   };
 
   const handleApplianceAdd = (appliance: Appliance) => {
     const newAppliances = [...appliances, appliance];
     setAppliances(newAppliances);
-    localStorage.setItem('ahorrapp_appliances', JSON.stringify(newAppliances));
+    // Guardar en la base de datos
+    saveApplianceToDB({
+      id: appliance.id,
+      name: appliance.name,
+      type: appliance.type,
+      consumption: appliance.consumption,
+      hoursPerDay: appliance.hoursPerDay,
+      image: appliance.image,
+      detected: appliance.detected
+    });
   };
 
   const handleApplianceUpdate = (id: string, updates: Partial<Appliance>) => {
@@ -99,7 +144,8 @@ function App() {
       app.id === id ? { ...app, ...updates } : app
     );
     setAppliances(updatedAppliances);
-    localStorage.setItem('ahorrapp_appliances', JSON.stringify(updatedAppliances));
+    // Actualizar en la base de datos
+    updateApplianceInDB(id, updates);
   };
 
   if (!isAuthenticated) {
@@ -173,8 +219,6 @@ function App() {
               currentScreen={currentScreen}
               onNavigate={setCurrentScreen}
               onClose={() => setShowAssistant(false)}
-              receipt={receipt}
-              appliances={appliances}
             />
           )}
         </>

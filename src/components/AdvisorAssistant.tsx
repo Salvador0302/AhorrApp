@@ -4,18 +4,15 @@ import type { Screen } from '../App';
 import {
   generatePersonalizedRecommendation,
   generateQuickTips,
-  analyzeConsumption,
-  type Receipt,
-  type Appliance
+  analyzeConsumption
 } from '../services/advisorService';
 import { buildKnowledgeBase } from '../services/knowledgeBase';
+import { getLatestReceipt, getAllAppliances } from '../services/database';
 
 interface AdvisorAssistantProps {
   currentScreen: Screen;
   onNavigate?: (screen: Screen) => void;
   onClose: () => void;
-  receipt: Receipt | null;
-  appliances: Appliance[];
 }
 
 interface Message {
@@ -26,9 +23,7 @@ interface Message {
 }
 
 const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
-  onClose,
-  receipt,
-  appliances
+  onClose
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -43,6 +38,30 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
   useEffect(() => {
     // Mensaje de bienvenida conversacional
     const initWelcome = async () => {
+      // Obtener datos actuales desde la base de datos
+      const receiptRecord = getLatestReceipt();
+      const applianceRecords = getAllAppliances();
+      
+      const receipt = receiptRecord ? {
+        id: receiptRecord.id,
+        period: receiptRecord.period,
+        consumption: receiptRecord.consumption,
+        amount: receiptRecord.amount,
+        dueDate: receiptRecord.dueDate,
+        previousConsumption: receiptRecord.previousConsumption,
+        image: receiptRecord.image
+      } : null;
+
+      const appliances = applianceRecords.map(record => ({
+        id: record.id,
+        name: record.name,
+        type: record.type,
+        consumption: record.consumption,
+        hoursPerDay: record.hoursPerDay,
+        image: record.image,
+        detected: record.detected
+      }));
+      
       // Construir base de conocimientos para personalizar el saludo
       const kb = buildKnowledgeBase(receipt, appliances);
       
@@ -84,7 +103,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     };
 
     initWelcome();
-  }, [receipt, appliances]);
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   // Eliminamos los mensajes contextuales automáticos para mantenerlo limpio
   // El usuario interactúa cuando quiere
@@ -115,11 +134,11 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       let responseText = '';
 
       if (actionType === 'recommendation') {
-        responseText = await generatePersonalizedRecommendation(receipt, appliances);
+        responseText = await generatePersonalizedRecommendation();
       } else if (actionType === 'analysis') {
-        responseText = await analyzeConsumption(receipt, appliances);
+        responseText = await analyzeConsumption();
       } else if (actionType === 'tips') {
-        const tips = await generateQuickTips(receipt, appliances);
+        const tips = await generateQuickTips();
         responseText = '✨ Aquí tienes algunos tips rápidos:\n\n' + tips.map((tip, i) => `${i + 1}. ${tip}`).join('\n');
       }
 
@@ -154,11 +173,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
   const generateBotReply = async (text: string): Promise<Message> => {
     try {
-      const response = await generatePersonalizedRecommendation(
-        receipt,
-        appliances,
-        text
-      );
+      const response = await generatePersonalizedRecommendation(text);
 
       return {
         id: Date.now().toString(),

@@ -4,6 +4,7 @@ import {
   generateContextForAI,
   queryKnowledgeBase
 } from './knowledgeBase';
+import { getLatestReceipt, getAllAppliances } from './database';
 
 export interface Receipt {
   id: string;
@@ -26,16 +27,47 @@ export interface Appliance {
 }
 
 /**
+ * Obtiene los datos actuales del usuario desde la base de datos
+ */
+function getUserData(): { receipt: Receipt | null; appliances: Appliance[] } {
+  const receiptRecord = getLatestReceipt();
+  const applianceRecords = getAllAppliances();
+
+  const receipt = receiptRecord ? {
+    id: receiptRecord.id,
+    period: receiptRecord.period,
+    consumption: receiptRecord.consumption,
+    amount: receiptRecord.amount,
+    dueDate: receiptRecord.dueDate,
+    previousConsumption: receiptRecord.previousConsumption,
+    image: receiptRecord.image
+  } : null;
+
+  const appliances: Appliance[] = applianceRecords.map(record => ({
+    id: record.id,
+    name: record.name,
+    type: record.type,
+    consumption: record.consumption,
+    hoursPerDay: record.hoursPerDay,
+    image: record.image,
+    detected: record.detected
+  }));
+
+  return { receipt, appliances };
+}
+
+/**
  * Servicio especializado para el AdvisorAssistant
  * Genera recomendaciones e interactúa basándose en datos completos
  * Utiliza una base de conocimientos estructurada para respuestas precisas
  */
 
 export async function generatePersonalizedRecommendation(
-  receipt: Receipt | null,
-  appliances: Appliance[],
   userQuestion?: string
 ): Promise<string> {
+  // Obtener datos actuales del usuario desde la base de datos
+  const { receipt, appliances } = getUserData();
+  
   // Construir base de conocimientos estructurada
   const kb = buildKnowledgeBase(receipt, appliances);
   const contextText = generateContextForAI(kb);
@@ -109,10 +141,10 @@ EJEMPLO: "💡 Tu Aire Acondicionado (2000W, 10h/día) consume $90/mes. Reducir 
 /**
  * Genera múltiples tips rápidos basados en los datos del usuario
  */
-export async function generateQuickTips(
-  receipt: Receipt | null,
-  appliances: Appliance[]
-): Promise<string[]> {
+export async function generateQuickTips(): Promise<string[]> {
+  // Obtener datos actuales del usuario desde la base de datos
+  const { receipt, appliances } = getUserData();
+  
   const kb = buildKnowledgeBase(receipt, appliances);
   const contextText = generateContextForAI(kb);
 
@@ -210,10 +242,10 @@ EJEMPLO:
 /**
  * Analiza el consumo y genera un reporte detallado
  */
-export async function analyzeConsumption(
-  receipt: Receipt | null,
-  appliances: Appliance[]
-): Promise<string> {
+export async function analyzeConsumption(): Promise<string> {
+  // Obtener datos actuales del usuario desde la base de datos
+  const { receipt, appliances } = getUserData();
+  
   const kb = buildKnowledgeBase(receipt, appliances);
 
   if (!receipt) {
