@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../utils/currency';
 import { CreditCard, DollarSign, CheckCircle, ArrowLeft, Download, Shield } from 'lucide-react';
 import type { Screen } from '../App';
 
@@ -99,17 +100,17 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
             
             <div className="flex justify-between items-center py-2 border-b border-white/10">
               <span className="text-white/70">Monto Original</span>
-              <span className="text-white font-medium">${originalAmount.toFixed(2)}</span>
+              <span className="text-white font-medium">{formatCurrency(originalAmount)}</span>
             </div>
             
             <div className="flex justify-between items-center py-2 border-b border-white/10">
               <span className="text-green-400">Ahorro Gestionado</span>
-              <span className="text-green-400 font-medium">-${savings.toFixed(2)}</span>
+              <span className="text-green-400 font-medium">-{formatCurrency(savings)}</span>
             </div>
             
             <div className="flex justify-between items-center py-3 bg-green-500/10 rounded-lg px-3">
               <span className="text-white font-semibold">Total Pagado</span>
-              <span className="text-white font-bold text-xl">${totalToPay.toFixed(2)}</span>
+              <span className="text-white font-bold text-xl">{formatCurrency(totalToPay)}</span>
             </div>
           </div>
           
@@ -144,7 +145,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
             <span className="text-green-400 font-medium">Ahorro Gestionado</span>
           </div>
           <p className="text-white/80 text-sm">
-            Hemos gestionado un ahorro del 10% (${savings.toFixed(2)}) que se aplicará a tu próxima factura. 
+            Hemos gestionado un ahorro del 10% ({formatCurrency(savings)}) que se aplicará a tu próxima factura. 
             ¡Sigue usando AhorrApp para maximizar tus ahorros!
           </p>
         </div>
@@ -271,7 +272,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
           ) : (
             <>
               <CreditCard className="w-5 h-5" />
-              Pagar ${totalToPay.toFixed(2)}
+              Pagar {formatCurrency(totalToPay)}
             </>
           )}
         </button>
@@ -312,7 +313,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
           
           <div className="flex justify-between items-center py-2 border-b border-white/10">
             <span className="text-white/70">Monto Original</span>
-            <span className="text-white font-medium">${originalAmount.toFixed(2)}</span>
+            <span className="text-white font-medium">{formatCurrency(originalAmount)}</span>
           </div>
           
           <div className="flex justify-between items-center py-2 border-b border-white/10">
@@ -334,18 +335,18 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-white/80 text-sm">Monto del recibo</span>
-            <span className="text-white">${originalAmount.toFixed(2)}</span>
+            <span className="text-white">{formatCurrency(originalAmount)}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-green-400 text-sm">Ahorro gestionado (10%)</span>
-            <span className="text-green-400">-${savings.toFixed(2)}</span>
+            <span className="text-green-400">-{formatCurrency(savings)}</span>
           </div>
           
           <div className="border-t border-white/20 pt-2">
             <div className="flex justify-between items-center">
               <span className="text-white font-semibold">Total a pagar</span>
-              <span className="text-white font-bold text-xl">${totalToPay.toFixed(2)}</span>
+              <span className="text-white font-bold text-xl">{formatCurrency(totalToPay)}</span>
             </div>
           </div>
         </div>

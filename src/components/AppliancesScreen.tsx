@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Plus, CreditCard as Edit3, Trash2, ArrowLeft, Zap } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
+import { Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface Appliance {
@@ -148,7 +149,7 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
             <p className="text-white/70 text-sm">Aparatos registrados</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">${estimatedMonthlyCost.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-white">{formatCurrency(Number(estimatedMonthlyCost.toFixed(0)), { decimals: 0 })}</p>
             <p className="text-white/70 text-sm">Costo estimado/mes</p>
           </div>
         </div>
@@ -291,7 +292,7 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
                       <div>
                         <p className="text-white/60">Costo/día</p>
                         <p className="text-white font-medium">
-                          ${((appliance.consumption * appliance.hoursPerDay * 0.15) / 1000).toFixed(2)}
+                          {formatCurrency((appliance.consumption * appliance.hoursPerDay * 0.15) / 1000)}
                         </p>
                       </div>
                     </div>

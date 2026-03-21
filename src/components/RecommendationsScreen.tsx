@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Lightbulb, Clock, DollarSign, TrendingDown, ArrowLeft, CheckCircle } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
+import { Lightbulb, ArrowLeft, CheckCircle } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface Receipt {
@@ -194,7 +195,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white/10 rounded-lg p-3">
             <p className="text-white/70 text-xs mb-1">Ahorro Potencial</p>
-            <p className="text-white font-bold text-lg">${totalPotentialSavings}</p>
+            <p className="text-white font-bold text-lg">{formatCurrency(totalPotentialSavings, { decimals: 0 })}</p>
             <p className="text-white/60 text-xs">por mes</p>
           </div>
           <div className="bg-white/10 rounded-lg p-3">
@@ -246,7 +247,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
                     <div className="bg-white/5 rounded-lg p-2">
                       <p className="text-white/60 text-xs">Ahorro</p>
                       <p className={`font-semibold text-sm ${isCompleted ? 'text-white/60' : 'text-green-400'}`}>
-                        ${recommendation.savings}/mes
+                        {formatCurrency(recommendation.savings, { decimals: 0 })}/mes
                       </p>
                     </div>
                     <div className="bg-white/5 rounded-lg p-2">
@@ -326,9 +327,9 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
             />
           </div>
           <p className="text-white/60 text-xs mt-2">
-            Ahorro acumulado: ${recommendations
+            Ahorro acumulado: {formatCurrency(recommendations
               .filter(r => completedRecommendations.includes(r.id))
-              .reduce((sum, r) => sum + r.savings, 0)} por mes
+              .reduce((sum, r) => sum + r.savings, 0), { decimals: 0 })} por mes
           </p>
         </div>
       )}

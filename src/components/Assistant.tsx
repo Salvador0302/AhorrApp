@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, MessageCircle, Camera, FileText, Lightbulb, CreditCard, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, MessageCircle, Camera, FileText, Lightbulb } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface AssistantProps {
@@ -31,6 +31,13 @@ const Assistant: React.FC<AssistantProps> = ({
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Scroll al final cuando cambian mensajes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   useEffect(() => {
     // Initialize with welcome message
@@ -159,6 +166,96 @@ const Assistant: React.FC<AssistantProps> = ({
     setMessages(prev => [...prev, userMessage]);
   };
 
+  const generateBotReply = (text: string): Message => {
+    const lower = text.toLowerCase();
+    // Reglas simples de intención
+    if (/(recibo|factura)/.test(lower)) {
+      return {
+        id: Date.now().toString(),
+        text: hasReceipt
+          ? '✅ Ya tienes un recibo analizado. ¿Quieres verlo o subir uno nuevo?'
+          : 'Aún no has subido un recibo. Pulsa el botón Recibo o envíame una imagen desde la pantalla de Recibo.',
+        isBot: true,
+        timestamp: new Date(),
+        actions: [ { label: '📄 Ir a Recibo', screen: 'receipt' } ]
+      };
+    }
+    if (/(aparat|electro|dispositivo)/.test(lower)) {
+      return {
+        id: Date.now().toString(),
+        text: hasAppliances
+          ? '🔌 Ya registraste aparatos. Puedes editarlos para mejorar la estimación de consumo.'
+          : 'Puedes registrar aparatos manualmente o con la cámara para detección simulada.',
+        isBot: true,
+        timestamp: new Date(),
+        actions: [ { label: '🔌 Ir a Aparatos', screen: 'appliances' } ]
+      };
+    }
+    if (/(tip|recomenda|ahorro)/.test(lower)) {
+      return {
+        id: Date.now().toString(),
+        text: '💡 Las recomendaciones se generan a partir de tu recibo y aparatos. Marca las completadas para ver tu progreso.',
+        isBot: true,
+        timestamp: new Date(),
+        actions: [ { label: '💡 Ver Tips', screen: 'recommendations' } ]
+      };
+    }
+    if (/(pagar|pago|tarjeta)/.test(lower)) {
+      return {
+        id: Date.now().toString(),
+        text: '💳 El módulo de pago es una simulación. Puedes revisarlo para ver cómo se reflejaría un pago y el ahorro gestionado.',
+        isBot: true,
+        timestamp: new Date(),
+        actions: [ { label: '💳 Ir a Pago', screen: 'payment' } ]
+      };
+    }
+    if (/(historial|meses|anterior)/.test(lower)) {
+      return {
+        id: Date.now().toString(),
+        text: '📊 En Historial ves consumos pasados y tu ahorro acumulado. Muy pronto añadiremos análisis comparativos.',
+        isBot: true,
+        timestamp: new Date(),
+        actions: [ { label: '📊 Ir a Historial', screen: 'history' } ]
+      };
+    }
+    // Respuesta genérica
+    return {
+      id: Date.now().toString(),
+      text: '🤔 Gracias por tu mensaje. Puedo ayudarte con: recibo, aparatos, recomendaciones, pago o historial. Prueba mencionando uno de esos temas.',
+      isBot: true,
+      timestamp: new Date(),
+      actions: [
+        { label: '📄 Recibo', screen: 'receipt' },
+        { label: '🔌 Aparatos', screen: 'appliances' },
+        { label: '💡 Tips', screen: 'recommendations' }
+      ]
+    };
+  };
+
+  const handleSend = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: trimmed,
+      isBot: false,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setTimeout(() => {
+      const reply = generateBotReply(trimmed);
+      setMessages(prev => [...prev, reply]);
+    }, 500);
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const getScreenName = (screen: Screen): string => {
     const names = {
       home: 'Inicio',
@@ -246,10 +343,11 @@ const Assistant: React.FC<AssistantProps> = ({
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Actions */}
-      <div className="p-3 border-t border-white/10">
+      {/* Quick Actions + Input */}
+      <div className="p-3 border-t border-white/10 space-y-2">
         <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => handleActionClick('receipt')}
@@ -258,11 +356,11 @@ const Assistant: React.FC<AssistantProps> = ({
                 ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
                 : 'bg-white/10 text-white/70 hover:bg-white/20'
             }`}
+            aria-label="Ir a recibo"
           >
             <FileText className="w-4 h-4" />
             Recibo
           </button>
-          
           <button
             onClick={() => handleActionClick('appliances')}
             className={`p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 ${
@@ -270,18 +368,36 @@ const Assistant: React.FC<AssistantProps> = ({
                 ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
                 : 'bg-white/10 text-white/70 hover:bg-white/20'
             }`}
+            aria-label="Ir a aparatos"
           >
             <Camera className="w-4 h-4" />
             Aparatos
           </button>
-          
           <button
             onClick={() => handleActionClick('recommendations')}
             className="p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 bg-white/10 text-white/70 hover:bg-white/20"
+            aria-label="Ir a recomendaciones"
           >
             <Lightbulb className="w-4 h-4" />
             Tips
           </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Escribe tu pregunta..."
+            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label="Mensaje para el asistente"
+          />
+            <button
+              onClick={handleSend}
+              disabled={!inputValue.trim()}
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-purple-600 hover:to-pink-600 transition-all"
+            >
+              Enviar
+            </button>
         </div>
       </div>
     </div>

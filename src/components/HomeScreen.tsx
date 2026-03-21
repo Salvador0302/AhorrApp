@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '../utils/currency';
 import { Zap, TrendingUp, DollarSign, Camera, FileText, Lightbulb } from 'lucide-react';
 import type { Screen } from '../App';
 
@@ -102,7 +103,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
             <span className="text-white/80 text-sm font-medium">Costo Est.</span>
           </div>
           <p className="text-xl font-bold text-white">
-            ${estimatedMonthlyCost.toFixed(0)}
+            {formatCurrency(Number(estimatedMonthlyCost.toFixed(0)), { decimals: 0 })}
           </p>
           <p className="text-white/60 text-xs">por mes</p>
         </div>

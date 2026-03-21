@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { formatCurrency } from '../utils/currency';
 import { Camera, Upload, FileText, TrendingUp, TrendingDown, Info, ArrowLeft } from 'lucide-react';
 import type { Screen } from '../App';
 
@@ -203,7 +204,7 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
               <div className="bg-green-500/10 rounded-lg p-4 border border-green-400/20">
                 <div className="flex items-center justify-between">
                   <span className="text-green-400 font-medium">Monto a Pagar</span>
-                  <span className="text-white text-xl font-bold">${receipt.amount}</span>
+                  <span className="text-white text-xl font-bold">{formatCurrency(receipt.amount, { decimals: 2 })}</span>
                 </div>
               </div>
             </div>
