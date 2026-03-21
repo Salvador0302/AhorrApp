@@ -216,9 +216,10 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-30 max-h-[600px] flex flex-col overflow-hidden"
+      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-30 flex flex-col overflow-hidden"
       style={{
-        boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(6, 182, 212, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)'
+        boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(6, 182, 212, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
+        maxHeight: 'calc(100vh - 200px)' // Asegura que nunca sea más alto que la ventana menos espacio para ver el header
       }}
     >
       {/* Efecto de brillo animado en el borde */}
