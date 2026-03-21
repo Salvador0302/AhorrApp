@@ -1,17 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Usa la clave API desde el archivo .env
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-
-// Verificar que tenemos una clave API en el navegador
-if (!apiKey) {
-  console.error("Error: VITE_GEMINI_API_KEY no está definida en el archivo .env");
-}
+// API Key de Google Gemini insertada directamente
+const apiKey = "AIzaSyC4E4TrfPI2AfSh7KZO0yeqpLYjfoZdEJM";
 
 // Inicializar la API de Gemini con la clave API
 let ai: GoogleGenAI;
 try {
-  ai = new GoogleGenAI(apiKey);
+  ai = new GoogleGenAI({ apiKey });
+  console.log("API de Google Gemini inicializada correctamente");
 } catch (error) {
   console.error("Error al inicializar GoogleGenAI:", error);
   // Creamos un objeto simulado para evitar errores en tiempo de ejecución si falla la inicialización

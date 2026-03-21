@@ -4,13 +4,10 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import sqlite3 from "sqlite3";
 
-// Para ejecutar este script use "VITE_GEMINI_API_KEY=<tu_key> node ./scripts/gemini_two_queries_sqlite.mjs"
+// Para ejecutar este script use "node ./scripts/gemini_two_queries_sqlite.mjs"
 
-// Usa VITE_GEMINI_API_KEY desde env
-const apiKey = process.env.VITE_GEMINI_API_KEY || "";
-if (!apiKey) {
-  console.warn("Advertencia: no se encontró VITE_GEMINI_API_KEY en el entorno. La llamada puede fallar con 403.");
-}
+// API Key de Gemini insertada directamente
+const apiKey = "AIzaSyC4E4TrfPI2AfSh7KZO0yeqpLYjfoZdEJM";
 const ai = new GoogleGenAI(apiKey ? { apiKey } : {});
 
 const __filename = fileURLToPath(import.meta.url);

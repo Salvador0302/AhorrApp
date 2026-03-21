@@ -1,17 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, MessageCircle, FileText, Lightbulb, Camera } from 'lucide-react';
 import type { Screen } from '../App';
-// Importamos ambos servicios y usamos un try/catch para decidir cuál usar
-import * as geminiService from '../services/geminiService';
-import * as geminiServiceMock from '../services/geminiServiceMock';
+// Importamos el servicio de Gemini con API key incluida
+import { chatWithGemini } from '../services/geminiService';
 
-// Determinar qué servicio usar
-const useMock = import.meta.env.VITE_USE_MOCK === 'true';
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const useRealService = !useMock && !!apiKey;
-
-console.log("Usando servicio real:", useRealService ? "Sí" : "No (modo simulado)");
-const { chatWithGemini } = useRealService ? geminiService : geminiServiceMock;
+console.log("Usando servicio real de Gemini con API key incluida");
 
 interface AssistantProps {
   currentScreen: Screen;
