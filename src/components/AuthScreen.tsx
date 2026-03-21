@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Zap, Mail, Lock, User, Eye, EyeOff, Smartphone } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Smartphone } from 'lucide-react';
+import logoImg from '../assets/logo.jpg';
 
 interface AuthScreenProps {
   onLogin: (user: { id: string; name: string; email: string; joinDate: string }) => void;
@@ -40,9 +41,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
       <div className="w-full max-w-sm">
         {/* Logo and Title */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Zap className="w-8 h-8 text-white" />
-          </div>
+          <img src={logoImg} alt="Logo AhorrApp" className="w-20 h-20 object-cover rounded-2xl mx-auto mb-3 shadow-lg border-2 border-white/30" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2">
             AhorrApp
           </h1>
