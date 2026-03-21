@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { formatCurrency } from '../utils/currency';
 import { Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap } from 'lucide-react';
 import type { Screen } from '../App';
+import { fileToBase64, queryImage } from '../services/geminiService';
 
 interface Appliance {
   id: string;
@@ -44,39 +45,127 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
     { name: 'Licuadora', type: 'cooking', consumption: 300, icon: '🥤' },
     { name: 'Ducha Eléctrica', type: 'heating', consumption: 5500, icon: '🚿' },
     { name: 'Arrocera', type: 'cooking', consumption: 400, icon: '🍚' },
-    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: '🔌' },
-    {}
+    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: '🔌' }
   ];
 
-  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsDetecting(true);
       
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setTimeout(() => {
-          // Simulate AI detection
-          const randomAppliance = commonAppliances[Math.floor(Math.random() * commonAppliances.length)];
-          const detectedAppliance: Appliance = {
+      reader.onload = async (e) => {
+        try {
+          // Convertir imagen a base64
+          const base64Data = await fileToBase64(file);
+          const mimeType = file.type;
+          
+          // Prompt específico para detectar electrodomésticos
+          const prompt = `Eres un experto en identificación de electrodomésticos y eficiencia energética.
+
+Analiza cuidadosamente esta imagen y detecta QUÉ electrodoméstico es específicamente.
+
+INSTRUCCIONES:
+1. Identifica el electrodoméstico en la imagen (ejemplo: si ves un televisor, di "Televisor", si ves una lavadora, di "Lavadora")
+2. Clasifica el tipo según estas categorías EXACTAS:
+   - "cooling" para refrigerador, aire acondicionado, ventilador
+   - "cleaning" para lavadora, plancha, aspiradora
+   - "entertainment" para televisor, equipo de sonido
+   - "cooking" para microondas, licuadora, arrocera, cocina eléctrica
+   - "heating" para ducha eléctrica, calentador
+   - "electronics" para computadora, cargadores, router
+
+3. Estima el consumo en Watts (W) basándote en el tipo de electrodoméstico:
+   - Refrigerador: 150W
+   - Televisor: 100W
+   - Lavadora: 500W
+   - Microondas: 800W
+   - Aire Acondicionado: 2000W
+   - Computadora: 200W
+   - Licuadora: 300W
+   - Ventilador: 75W
+   - Plancha: 1000W
+   - Ducha Eléctrica: 5500W
+
+4. Estima las horas de uso diario típicas para ese electrodoméstico
+
+IMPORTANTE: Devuelve SOLO un JSON válido con este formato exacto:
+{
+  "nombre": "Nombre del electrodoméstico",
+  "tipo": "una de las categorías mencionadas",
+  "consumo": número en Watts,
+  "horas_uso": número de horas por día
+}
+
+NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
+          
+          // Consultar a Gemini
+          const result = await queryImage(base64Data, mimeType, prompt);
+          
+          let detectedAppliance: Appliance;
+          
+          if (result.jsonData) {
+            // Si Gemini devolvió datos estructurados
+            detectedAppliance = {
+              id: Date.now().toString(),
+              name: result.jsonData.nombre || 'Electrodoméstico',
+              type: result.jsonData.tipo || 'electronics',
+              consumption: parseInt(result.jsonData.consumo) || 100,
+              hoursPerDay: parseInt(result.jsonData.horas_uso) || 4,
+              image: e.target?.result as string,
+              detected: true
+            };
+          } else {
+            // Si no se pudo extraer JSON, intentar una búsqueda por coincidencia
+            const textLower = result.rawText.toLowerCase();
+            let matchedAppliance = commonAppliances[0]; // valor por defecto
+            
+            // Buscar coincidencias en el texto de respuesta
+            for (const appliance of commonAppliances) {
+              if (appliance.name && textLower.includes(appliance.name.toLowerCase())) {
+                matchedAppliance = appliance;
+                break;
+              }
+            }
+            
+            detectedAppliance = {
+              id: Date.now().toString(),
+              name: matchedAppliance.name || 'Electrodoméstico',
+              type: matchedAppliance.type || 'electronics',
+              consumption: matchedAppliance.consumption || 100,
+              hoursPerDay: Math.floor(Math.random() * 8) + 2,
+              image: e.target?.result as string,
+              detected: true
+            };
+          }
+          
+          onApplianceAdd(detectedAppliance);
+          setIsDetecting(false);
+        } catch (error) {
+          console.error('Error al detectar electrodoméstico:', error);
+          
+          // En caso de error, usar detección por defecto
+          const defaultAppliance: Appliance = {
             id: Date.now().toString(),
-            name: randomAppliance.name,
-            type: randomAppliance.type,
-            consumption: randomAppliance.consumption,
-            hoursPerDay: Math.floor(Math.random() * 12) + 2,
+            name: 'Electrodoméstico Desconocido',
+            type: 'electronics',
+            consumption: 100,
+            hoursPerDay: 4,
             image: e.target?.result as string,
             detected: true
           };
           
-          onApplianceAdd(detectedAppliance);
+          onApplianceAdd(defaultAppliance);
           setIsDetecting(false);
-        }, 2500);
+          
+          alert('No se pudo detectar el electrodoméstico con precisión. Se agregó con valores predeterminados que puedes editar.');
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleManualAdd = (appliance: typeof commonAppliances[0]) => {
+  const handleManualAdd = (appliance: { name: string; type: string; consumption: number; icon: string }) => {
     const newAppliance: Appliance = {
       id: Date.now().toString(),
       name: appliance.name,
@@ -124,11 +213,12 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
           <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Camera className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-white font-semibold text-lg mb-2">Detectando electrodoméstico...</h3>
-          <p className="text-white/70 text-sm mb-4">La IA está analizando la imagen</p>
-          <div className="w-48 bg-white/10 rounded-full h-2 mx-auto">
+          <h3 className="text-white font-semibold text-lg mb-2">Analizando con Gemini AI...</h3>
+          <p className="text-white/70 text-sm mb-4">Identificando el electrodoméstico en la imagen</p>
+          <div className="w-48 bg-white/10 rounded-full h-2 mx-auto mb-3">
             <div className="bg-gradient-to-r from-green-400 to-blue-400 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
           </div>
+          <p className="text-white/50 text-xs">Esto puede tomar unos segundos...</p>
         </div>
       </div>
     );
