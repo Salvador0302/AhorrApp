@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 // Ajuste: no existe logo.svg, usamos logo.jpg
 import logoImg from './assets/logo.jpg';
 import AuthScreen from './components/AuthScreen';
@@ -8,7 +8,8 @@ import AppliancesScreen from './components/AppliancesScreen';
 import RecommendationsScreen from './components/RecommendationsScreen';
 import PaymentScreen from './components/PaymentScreen';
 import HistoryScreen from './components/HistoryScreen';
-import Assistant from './components/Assistant';
+import DataAssistant from './components/DataAssistant';
+import AdvisorAssistant from './components/AdvisorAssistant';
 
 export type Screen = 'home' | 'receipt' | 'appliances' | 'recommendations' | 'payment' | 'history';
 
@@ -152,15 +153,31 @@ function App() {
         {renderScreen()}
       </main>
 
-      {/* Assistant */}
+      {/* Assistant - Muestra DataAssistant o AdvisorAssistant según el contexto */}
       {showAssistant && (
-        <Assistant 
-          currentScreen={currentScreen}
-          onNavigate={setCurrentScreen}
-          onClose={() => setShowAssistant(false)}
-          hasReceipt={!!receipt}
-          hasAppliances={appliances.length > 0}
-        />
+        <>
+          {/* Mostrar DataAssistant si no hay datos completos */}
+          {(!receipt || appliances.length === 0) && (
+            <DataAssistant 
+              currentScreen={currentScreen}
+              onNavigate={setCurrentScreen}
+              onClose={() => setShowAssistant(false)}
+              hasReceipt={!!receipt}
+              hasAppliances={appliances.length > 0}
+            />
+          )}
+          
+          {/* Mostrar AdvisorAssistant si ya hay datos completos */}
+          {receipt && appliances.length > 0 && (
+            <AdvisorAssistant 
+              currentScreen={currentScreen}
+              onNavigate={setCurrentScreen}
+              onClose={() => setShowAssistant(false)}
+              receipt={receipt}
+              appliances={appliances}
+            />
+          )}
+        </>
       )}
 
       {/* Bottom Navigation */}
@@ -190,13 +207,21 @@ function App() {
         </div>
       </nav>
 
-      {/* Assistant Toggle Button */}
-      <button
-        onClick={() => setShowAssistant(true)}
-        className="fixed bottom-24 right-4 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg z-30"
-      >
-        <span className="text-white text-xl">🤖</span>
-      </button>
+      {/* Assistant Toggle Button - Cambia de icono según el asistente activo */}
+      {!showAssistant && (
+        <button
+          onClick={() => setShowAssistant(true)}
+          className={`fixed bottom-24 right-4 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-30 ${
+            receipt && appliances.length > 0
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+              : 'bg-gradient-to-r from-blue-500 to-cyan-500'
+          }`}
+        >
+          <span className="text-white text-xl">
+            {receipt && appliances.length > 0 ? '💡' : '📋'}
+          </span>
+        </button>
+      )}
     </div>
   );
 }
