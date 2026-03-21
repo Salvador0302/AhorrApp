@@ -36,6 +36,7 @@ const Assistant: React.FC<AssistantProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [lastContextScreen, setLastContextScreen] = useState<Screen | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // Scroll al final cuando cambian mensajes
@@ -60,6 +61,11 @@ const Assistant: React.FC<AssistantProps> = ({
   }, []);
 
   useEffect(() => {
+    // Solo agregar mensaje contextual si cambiamos de pantalla y no es 'home'
+    if (currentScreen === 'home' || currentScreen === lastContextScreen) {
+      return;
+    }
+
     // Add contextual messages based on current screen and progress
     const addContextualMessage = () => {
       let newMessage: Message | null = null;
@@ -149,18 +155,16 @@ const Assistant: React.FC<AssistantProps> = ({
           break;
       }
 
-      // Solo agregar si no existe ya un mensaje con el mismo texto
-      setMessages(prev => {
-        if (newMessage && !prev.some(m => m.text === newMessage!.text)) {
-          return [...prev, newMessage];
-        }
-        return prev;
-      });
+      // Solo agregar si el mensaje es nuevo
+      if (newMessage) {
+        setMessages(prev => [...prev, newMessage!]);
+        setLastContextScreen(currentScreen);
+      }
     };
 
     const timer = setTimeout(addContextualMessage, 1000);
     return () => clearTimeout(timer);
-  }, [currentScreen, hasReceipt, hasAppliances]); // Removido 'messages' de las dependencias
+  }, [currentScreen, hasReceipt, hasAppliances, lastContextScreen]);
 
   const handleActionClick = (screen: Screen) => {
     onNavigate(screen);
