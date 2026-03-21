@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { formatCurrency } from '../utils/currency';
-import { Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap } from 'lucide-react';
+import { Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap, Trash2 } from 'lucide-react';
 import type { Screen } from '../App';
 import { fileToBase64, queryImage } from '../services/geminiService';
 
@@ -18,13 +18,15 @@ interface AppliancesScreenProps {
   appliances: Appliance[];
   onApplianceAdd: (appliance: Appliance) => void;
   onApplianceUpdate: (id: string, updates: Partial<Appliance>) => void;
+  onApplianceDelete: (id: string) => void;
   onNavigate: (screen: Screen) => void;
 }
 
 const AppliancesScreen: React.FC<AppliancesScreenProps> = ({ 
   appliances, 
   onApplianceAdd, 
-  onApplianceUpdate, 
+  onApplianceUpdate,
+  onApplianceDelete, 
   onNavigate 
 }) => {
   const [isDetecting, setIsDetecting] = useState(false);
@@ -287,28 +289,43 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
       <div className="space-y-3">
         <h4 className="text-white/80 font-medium">Electrodomésticos Comunes</h4>
         <div className="grid grid-cols-2 gap-2">
-          {commonAppliances.map((appliance, index) => (
-            <button
-              key={index}
-              onClick={() => handleManualAdd(appliance)}
-              className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all text-left"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{appliance.icon}</span>
-                <div>
-                  <p className="text-white text-sm font-medium">{appliance.name}</p>
-                  <p className="text-white/60 text-xs">{appliance.consumption}W</p>
+          {commonAppliances
+            .filter(appliance => appliance.name && appliance.consumption)
+            .map((appliance, index) => (
+              <button
+                key={`${appliance.name}-${index}`}
+                onClick={() => handleManualAdd(appliance)}
+                className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{appliance.icon}</span>
+                  <div>
+                    <p className="text-white text-sm font-medium">{appliance.name}</p>
+                    <p className="text-white/60 text-xs">{appliance.consumption}W</p>
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
         </div>
       </div>
 
       {/* Registered Appliances */}
       {appliances.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-white font-semibold">Tus Electrodomésticos</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-white font-semibold">Tus Electrodomésticos</h3>
+            <button
+              onClick={() => {
+                if (confirm(`¿Estás seguro de eliminar TODOS los ${appliances.length} electrodomésticos?`)) {
+                  appliances.forEach(app => onApplianceDelete(app.id));
+                }
+              }}
+              className="text-red-400 text-sm font-medium hover:text-red-300 transition-colors flex items-center gap-1"
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar todos
+            </button>
+          </div>
           
           {appliances.map((appliance) => (
             <div key={appliance.id} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
@@ -332,8 +349,20 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                       <button
                         onClick={() => handleEdit(appliance)}
                         className="p-1 rounded bg-blue-500/20 hover:bg-blue-500/30 transition-colors"
+                        aria-label="Editar electrodoméstico"
                       >
                         <Edit3 className="w-4 h-4 text-blue-400" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`¿Estás seguro de eliminar "${appliance.name}"?`)) {
+                            onApplianceDelete(appliance.id);
+                          }
+                        }}
+                        className="p-1 rounded bg-red-500/20 hover:bg-red-500/30 transition-colors"
+                        aria-label="Eliminar electrodoméstico"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-400" />
                       </button>
                     </div>
                   </div>

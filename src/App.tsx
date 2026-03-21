@@ -15,7 +15,8 @@ import {
   getAllAppliances, 
   saveReceipt as saveReceiptToDB, 
   saveAppliance as saveApplianceToDB, 
-  updateAppliance as updateApplianceInDB
+  updateAppliance as updateApplianceInDB,
+  deleteAppliance as deleteApplianceFromDB
 } from './services/database';export type Screen = 'home' | 'receipt' | 'appliances' | 'recommendations' | 'payment' | 'history';
 
 interface User {
@@ -148,6 +149,13 @@ function App() {
     updateApplianceInDB(id, updates);
   };
 
+  const handleApplianceDelete = (id: string) => {
+    const updatedAppliances = appliances.filter(app => app.id !== id);
+    setAppliances(updatedAppliances);
+    // Eliminar de la base de datos
+    deleteApplianceFromDB(id);
+  };
+
   if (!isAuthenticated) {
     return <AuthScreen onLogin={handleLogin} />;
   }
@@ -159,7 +167,7 @@ function App() {
       case 'receipt':
         return <ReceiptScreen onReceiptUpload={handleReceiptUpload} receipt={receipt} onNavigate={setCurrentScreen} />;
       case 'appliances':
-        return <AppliancesScreen appliances={appliances} onApplianceAdd={handleApplianceAdd} onApplianceUpdate={handleApplianceUpdate} onNavigate={setCurrentScreen} />;
+        return <AppliancesScreen appliances={appliances} onApplianceAdd={handleApplianceAdd} onApplianceUpdate={handleApplianceUpdate} onApplianceDelete={handleApplianceDelete} onNavigate={setCurrentScreen} />;
       case 'recommendations':
         return <RecommendationsScreen receipt={receipt} appliances={appliances} onNavigate={setCurrentScreen} />;
       case 'payment':
