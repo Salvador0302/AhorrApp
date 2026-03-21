@@ -22,17 +22,12 @@ Esta aplicación ayuda a los usuarios a optimizar su consumo eléctrico mediante
    npm install
    ```
 
-3. **Configurar variables de entorno**:
-   - Copia `.env.sample` a `.env`
-   - Añade tu API key de Google Gemini:
-     ```
-     VITE_GEMINI_API_KEY=your_api_key_here
-     ```
-
-4. **Iniciar la aplicación**:
+3. **Iniciar la aplicación**:
    ```bash
    npm run dev
    ```
+
+> **Nota**: La API key de Google Gemini ya está incluida directamente en el código para facilitar el desarrollo.
 
 ## Integración con Google Gemini
 
@@ -56,11 +51,13 @@ Los scripts en la carpeta `/scripts` demuestran diferentes maneras de utilizar l
 
 ## Uso de la API de Gemini
 
-Para hacer solicitudes a la API, utilizamos el servicio `geminiService.ts` que ofrece varias funciones:
+La aplicación utiliza Google Gemini para el análisis de imágenes y el asistente conversacional. El servicio `geminiService.ts` ofrece varias funciones:
 
 - `queryImage`: Analiza una imagen con un prompt específico
 - `queryMultipleImages`: Analiza múltiples imágenes juntas
 - `chatWithGemini`: Envía un mensaje de texto al modelo conversacional
+
+La API key está incluida directamente en el código para simplificar el proceso de desarrollo.
 
 ## Licencia
 
