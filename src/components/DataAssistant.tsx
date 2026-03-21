@@ -33,11 +33,11 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
   }, [messages]);
 
   useEffect(() => {
-    // Mensaje de bienvenida conversacional
+    // Mensaje de bienvenida conversacional - SOLO al montar el componente
     let welcomeText = '👋 ¡Hola! Soy tu Asistente Virtual de AhorrApp.\n\n';
     
     if (!hasReceipt && !hasAppliances) {
-      welcomeText += '� Para comenzar a optimizar tu consumo energético, necesito que:\n\n';
+      welcomeText += '📋 Para comenzar a optimizar tu consumo energético, necesito que:\n\n';
       welcomeText += '1️⃣ Subas tu recibo de luz (ve a la pantalla "Recibo")\n';
       welcomeText += '2️⃣ Registres tus electrodomésticos (ve a la pantalla "Aparatos")\n\n';
       welcomeText += '💬 Mientras tanto, puedes preguntarme sobre:\n';
@@ -65,7 +65,8 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
-  }, [hasReceipt, hasAppliances]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Array vacío = solo se ejecuta al montar
 
   // Eliminamos mensajes contextuales automáticos - el usuario interactúa cuando quiera
 
