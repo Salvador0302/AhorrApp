@@ -3,12 +3,12 @@ import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-// Para ejecutar este script use "node ./scripts/gemini_inline.mjs"
+// Para ejecutar este script use "VITE_GEMINI_API_KEY=<tu_key> node ./scripts/gemini_inline.mjs"
 
-// Usa GEMINI_API_KEY desde env (no dejar keys en el código)
-const apiKey = "";
+// Usa VITE_GEMINI_API_KEY desde env
+const apiKey = process.env.VITE_GEMINI_API_KEY || "";
 if (!apiKey) {
-  console.warn("Advertencia: no se encontró GEMINI_API_KEY en el entorno. Asegúrate de exportarla antes de ejecutar.");
+  console.warn("Advertencia: no se encontró VITE_GEMINI_API_KEY en el entorno. Asegúrate de exportarla antes de ejecutar.");
 }
 const ai = new GoogleGenAI(apiKey ? { apiKey } : {});
 

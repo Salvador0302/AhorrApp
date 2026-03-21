@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, MessageCircle, Camera, FileText, Lightbulb } from 'lucide-react';
 import type { Screen } from '../App';
+import { chatWithGemini } from '../services/geminiService';
 
 interface AssistantProps {
   currentScreen: Screen;
@@ -166,75 +167,85 @@ const Assistant: React.FC<AssistantProps> = ({
     setMessages(prev => [...prev, userMessage]);
   };
 
-  const generateBotReply = (text: string): Message => {
+  const generateBotReply = async (text: string): Promise<Message> => {
     const lower = text.toLowerCase();
-    // Reglas simples de intención
+    let geminiResponse: string | null = null;
+    let actions: Array<{ label: string; screen: Screen; icon?: string }> | undefined;
+
+    // Configuración de acciones según el contexto
     if (/(recibo|factura)/.test(lower)) {
-      return {
-        id: Date.now().toString(),
-        text: hasReceipt
-          ? '✅ Ya tienes un recibo analizado. ¿Quieres verlo o subir uno nuevo?'
-          : 'Aún no has subido un recibo. Pulsa el botón Recibo o envíame una imagen desde la pantalla de Recibo.',
-        isBot: true,
-        timestamp: new Date(),
-        actions: [ { label: '📄 Ir a Recibo', screen: 'receipt' } ]
-      };
-    }
-    if (/(aparat|electro|dispositivo)/.test(lower)) {
-      return {
-        id: Date.now().toString(),
-        text: hasAppliances
-          ? '🔌 Ya registraste aparatos. Puedes editarlos para mejorar la estimación de consumo.'
-          : 'Puedes registrar aparatos manualmente o con la cámara para detección simulada.',
-        isBot: true,
-        timestamp: new Date(),
-        actions: [ { label: '🔌 Ir a Aparatos', screen: 'appliances' } ]
-      };
-    }
-    if (/(tip|recomenda|ahorro)/.test(lower)) {
-      return {
-        id: Date.now().toString(),
-        text: '💡 Las recomendaciones se generan a partir de tu recibo y aparatos. Marca las completadas para ver tu progreso.',
-        isBot: true,
-        timestamp: new Date(),
-        actions: [ { label: '💡 Ver Tips', screen: 'recommendations' } ]
-      };
-    }
-    if (/(pagar|pago|tarjeta)/.test(lower)) {
-      return {
-        id: Date.now().toString(),
-        text: '💳 El módulo de pago es una simulación. Puedes revisarlo para ver cómo se reflejaría un pago y el ahorro gestionado.',
-        isBot: true,
-        timestamp: new Date(),
-        actions: [ { label: '💳 Ir a Pago', screen: 'payment' } ]
-      };
-    }
-    if (/(historial|meses|anterior)/.test(lower)) {
-      return {
-        id: Date.now().toString(),
-        text: '📊 En Historial ves consumos pasados y tu ahorro acumulado. Muy pronto añadiremos análisis comparativos.',
-        isBot: true,
-        timestamp: new Date(),
-        actions: [ { label: '📊 Ir a Historial', screen: 'history' } ]
-      };
-    }
-    // Respuesta genérica
-    return {
-      id: Date.now().toString(),
-      text: '🤔 Gracias por tu mensaje. Puedo ayudarte con: recibo, aparatos, recomendaciones, pago o historial. Prueba mencionando uno de esos temas.',
-      isBot: true,
-      timestamp: new Date(),
-      actions: [
+      actions = [{ label: '📄 Ir a Recibo', screen: 'receipt' }];
+    } else if (/(aparat|electro|dispositivo)/.test(lower)) {
+      actions = [{ label: '🔌 Ir a Aparatos', screen: 'appliances' }];
+    } else if (/(tip|recomenda|ahorro)/.test(lower)) {
+      actions = [{ label: '💡 Ver Tips', screen: 'recommendations' }];
+    } else if (/(pagar|pago|tarjeta)/.test(lower)) {
+      actions = [{ label: '💳 Ir a Pago', screen: 'payment' }];
+    } else if (/(historial|meses|anterior)/.test(lower)) {
+      actions = [{ label: '📊 Ir a Historial', screen: 'history' }];
+    } else {
+      // Acciones genéricas para consultas no identificadas
+      actions = [
         { label: '📄 Recibo', screen: 'receipt' },
         { label: '🔌 Aparatos', screen: 'appliances' },
         { label: '💡 Tips', screen: 'recommendations' }
-      ]
+      ];
+    }
+
+    try {
+      // Crear un prompt enriquecido con contexto para Gemini
+      const contextPrompt = `
+        Actúas como el asistente virtual de AhorrApp, una aplicación para ayudar a usuarios a ahorrar en su consumo eléctrico.
+        Contexto actual:
+        - Pantalla actual: ${getScreenName(currentScreen)}
+        - Usuario ha subido recibo: ${hasReceipt ? 'Sí' : 'No'}
+        - Usuario ha registrado electrodomésticos: ${hasAppliances ? 'Sí' : 'No'}
+        
+        El usuario pregunta: "${text}"
+        
+        Responde brevemente (máximo 3 frases) y de forma amigable como asistente de ahorro energético.
+        Incluye emojis relevantes al inicio de tu respuesta.
+        No menciones que estás usando Gemini ni que eres una IA.
+      `;
+      
+      geminiResponse = await chatWithGemini(contextPrompt);
+    } catch (error) {
+      console.error("Error al consultar Gemini:", error);
+      
+      // Respuestas de fallback según contexto (reglas simples como antes)
+      if (/(recibo|factura)/.test(lower)) {
+        geminiResponse = hasReceipt
+          ? '✅ Ya tienes un recibo analizado. ¿Quieres verlo o subir uno nuevo?'
+          : 'Aún no has subido un recibo. Pulsa el botón Recibo o envíame una imagen desde la pantalla de Recibo.';
+      } else if (/(aparat|electro|dispositivo)/.test(lower)) {
+        geminiResponse = hasAppliances
+          ? '🔌 Ya registraste aparatos. Puedes editarlos para mejorar la estimación de consumo.'
+          : 'Puedes registrar aparatos manualmente o con la cámara para detección simulada.';
+      } else if (/(tip|recomenda|ahorro)/.test(lower)) {
+        geminiResponse = '💡 Las recomendaciones se generan a partir de tu recibo y aparatos. Marca las completadas para ver tu progreso.';
+      } else if (/(pagar|pago|tarjeta)/.test(lower)) {
+        geminiResponse = '💳 El módulo de pago es una simulación. Puedes revisarlo para ver cómo se reflejaría un pago y el ahorro gestionado.';
+      } else if (/(historial|meses|anterior)/.test(lower)) {
+        geminiResponse = '📊 En Historial ves consumos pasados y tu ahorro acumulado. Muy pronto añadiremos análisis comparativos.';
+      } else {
+        geminiResponse = '🤔 Gracias por tu mensaje. Puedo ayudarte con: recibo, aparatos, recomendaciones, pago o historial. Prueba mencionando uno de esos temas.';
+      }
+    }
+    
+    return {
+      id: Date.now().toString(),
+      text: geminiResponse,
+      isBot: true,
+      timestamp: new Date(),
+      actions
     };
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
+    
+    // Agregar mensaje del usuario
     const userMessage: Message = {
       id: Date.now().toString(),
       text: trimmed,
@@ -243,10 +254,42 @@ const Assistant: React.FC<AssistantProps> = ({
     };
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
-    setTimeout(() => {
-      const reply = generateBotReply(trimmed);
-      setMessages(prev => [...prev, reply]);
-    }, 500);
+    
+    // Mostrar indicador de carga
+    const loadingId = Date.now().toString();
+    const loadingMessage: Message = {
+      id: loadingId,
+      text: "Pensando...",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+    
+    try {
+      // Obtener respuesta de Gemini
+      const reply = await generateBotReply(trimmed);
+      
+      // Reemplazar indicador de carga con la respuesta real
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingId ? reply : msg
+      ));
+    } catch (error) {
+      // En caso de error, mostrar mensaje de error
+      console.error("Error al generar respuesta:", error);
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingId ? {
+          id: loadingId,
+          text: "Lo siento, tuve un problema para responder. ¿Podrías intentarlo de nuevo?",
+          isBot: true,
+          timestamp: new Date(),
+          actions: [
+            { label: '📄 Recibo', screen: 'receipt' },
+            { label: '🔌 Aparatos', screen: 'appliances' },
+            { label: '💡 Tips', screen: 'recommendations' }
+          ]
+        } : msg
+      ));
+    }
   };
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {

@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { formatCurrency } from '../utils/currency';
-import { Camera, Upload, FileText, TrendingUp, TrendingDown, Info, ArrowLeft, CheckCircle } from 'lucide-react';
+import { FileText, TrendingUp, TrendingDown, Info, ArrowLeft, CheckCircle, Upload } from 'lucide-react';
 import type { Screen } from '../App';
+import ImageUploader from './ImageUploader';
 
 interface Receipt {
   id: string;
@@ -20,42 +21,10 @@ interface ReceiptScreenProps {
 }
 
 const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt, onNavigate }) => {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzing] = useState(false);
   // Estado para mostrar banner de éxito inmediatamente después de procesar
   const [justProcessed, setJustProcessed] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setIsAnalyzing(true);
-      
-      // Simulate image processing
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setTimeout(() => {
-          // Simulate AI analysis results
-          const mockReceipt: Receipt = {
-            id: Date.now().toString(),
-            period: 'Noviembre 2024',
-            consumption: Math.floor(Math.random() * 200) + 150,
-            amount: Math.floor(Math.random() * 500) + 300,
-            dueDate: '2024-12-15',
-            previousConsumption: Math.floor(Math.random() * 180) + 140,
-            image: e.target?.result as string
-          };
-          
-          onReceiptUpload(mockReceipt);
-          setIsAnalyzing(false);
-          setJustProcessed(true);
-          // Ocultar mensaje de éxito tras unos segundos
-          setTimeout(() => setJustProcessed(false), 6000);
-        }, 3000);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const glossaryTerms = [
     { term: 'kWh', definition: 'Kilowatt-hora: unidad que mide tu consumo de energía' },
@@ -107,32 +76,29 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
               Toma una foto o selecciona una imagen de tu factura eléctrica
             </p>
             
-            <div className="space-y-3">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-3 rounded-xl hover:from-blue-600 hover:to-green-600 transition-all flex items-center justify-center gap-2"
-              >
-                <Camera className="w-5 h-5" />
-                Tomar Foto
-              </button>
-              
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full bg-white/10 border border-white/20 text-white font-semibold py-3 rounded-xl hover:bg-white/20 transition-all flex items-center justify-center gap-2"
-              >
-                <Upload className="w-5 h-5" />
-                Subir desde Galería
-              </button>
-            </div>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleImageUpload}
-              className="hidden"
+            <div className="mt-4">
+            <ImageUploader 
+              type="receipt"
+              onProcessed={(data) => {
+                // Crear objeto de recibo a partir de datos de Gemini
+                const newReceipt: Receipt = {
+                  id: Date.now().toString(),
+                  period: data.periodo || 'Periodo no identificado',
+                  consumption: parseFloat(data.kWh) || 0,
+                  amount: parseFloat(data.costo) || 0,
+                  dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 15 días después
+                  previousConsumption: (parseFloat(data.kWh) || 0) * 0.9 // Simulamos un consumo anterior para comparación
+                };
+                onReceiptUpload(newReceipt);
+                setJustProcessed(true);
+                setTimeout(() => setJustProcessed(false), 6000);
+              }}
+              onError={(error) => {
+                console.error("Error en análisis de recibo:", error);
+                alert(error);
+              }}
             />
+          </div>
           </div>
 
           {/* Info Section */}
@@ -276,22 +242,35 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
           </div>
 
           {/* Upload New Receipt */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full bg-white/10 border border-white/20 text-white font-medium py-3 rounded-xl hover:bg-white/20 transition-all flex items-center justify-center gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            Subir Nuevo Recibo
-          </button>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
+          <div className="w-full bg-white/10 border border-white/20 text-white font-medium py-3 rounded-xl">
+            <h4 className="text-center mb-2 flex items-center justify-center gap-2">
+              <Upload className="w-4 h-4" />
+              Subir Nuevo Recibo
+            </h4>
+            <div className="px-2">
+              <ImageUploader 
+                type="receipt"
+                onProcessed={(data) => {
+                  // Crear objeto de recibo a partir de datos de Gemini
+                  const newReceipt: Receipt = {
+                    id: Date.now().toString(),
+                    period: data.periodo || 'Periodo no identificado',
+                    consumption: parseFloat(data.kWh) || 0,
+                    amount: parseFloat(data.costo) || 0,
+                    dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    previousConsumption: (parseFloat(data.kWh) || 0) * 0.9
+                  };
+                  onReceiptUpload(newReceipt);
+                  setJustProcessed(true);
+                  setTimeout(() => setJustProcessed(false), 6000);
+                }}
+                onError={(error) => {
+                  console.error("Error en análisis de recibo:", error);
+                  alert(error);
+                }}
+              />
+            </div>
+          </div>
         </>
       )}
 

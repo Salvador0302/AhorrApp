@@ -44,7 +44,8 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
     { name: 'Licuadora', type: 'cooking', consumption: 300, icon: '🥤' },
     { name: 'Ducha Eléctrica', type: 'heating', consumption: 5500, icon: '🚿' },
     { name: 'Arrocera', type: 'cooking', consumption: 400, icon: '🍚' },
-    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: '🔌' }
+    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: '🔌' },
+    {}
   ];
 
   const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
