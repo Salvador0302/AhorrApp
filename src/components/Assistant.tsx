@@ -68,14 +68,14 @@ const Assistant: React.FC<AssistantProps> = ({
         case 'receipt':
           if (!hasReceipt) {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-receipt-${Date.now()}`,
               text: '📸 ¡Perfecto! Toma una foto de tu recibo de luz y yo lo analizaré para extraer toda la información importante.',
               isBot: true,
               timestamp: new Date()
             };
           } else {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-receipt-done-${Date.now()}`,
               text: '✅ ¡Excelente! Ya tienes tu recibo analizado. Ahora puedes ver recomendaciones personalizadas o proceder al pago.',
               isBot: true,
               timestamp: new Date(),
@@ -90,14 +90,14 @@ const Assistant: React.FC<AssistantProps> = ({
         case 'appliances':
           if (!hasAppliances) {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-appliances-${Date.now()}`,
               text: '🔌 Registra tus electrodomésticos para obtener análisis más precisos. Puedes usar la cámara para detectarlos automáticamente.',
               isBot: true,
               timestamp: new Date()
             };
           } else {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-appliances-done-${Date.now()}`,
               text: '👍 ¡Genial! Ya tienes aparatos registrados. Esto me ayuda a darte recomendaciones más precisas.',
               isBot: true,
               timestamp: new Date(),
@@ -111,14 +111,14 @@ const Assistant: React.FC<AssistantProps> = ({
         case 'recommendations':
           if (hasReceipt && hasAppliances) {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-recommendations-full-${Date.now()}`,
               text: '🎯 ¡Perfecto! Con tu recibo y aparatos registrados, puedo darte las mejores recomendaciones personalizadas.',
               isBot: true,
               timestamp: new Date()
             };
           } else {
             newMessage = {
-              id: Date.now().toString(),
+              id: `context-recommendations-${Date.now()}`,
               text: '💡 Para recomendaciones más precisas, te sugiero subir tu recibo y registrar tus electrodomésticos.',
               isBot: true,
               timestamp: new Date(),
@@ -132,7 +132,7 @@ const Assistant: React.FC<AssistantProps> = ({
 
         case 'payment':
           newMessage = {
-            id: Date.now().toString(),
+            id: `context-payment-${Date.now()}`,
             text: '💳 Aquí puedes pagar tu recibo de forma segura. Gestionamos un ahorro del 10% que se aplicará a tu próxima factura.',
             isBot: true,
             timestamp: new Date()
@@ -141,7 +141,7 @@ const Assistant: React.FC<AssistantProps> = ({
 
         case 'history':
           newMessage = {
-            id: Date.now().toString(),
+            id: `context-history-${Date.now()}`,
             text: '📊 En tu historial puedes ver todos tus pagos anteriores y el ahorro acumulado con AhorrApp.',
             isBot: true,
             timestamp: new Date()
@@ -149,14 +149,18 @@ const Assistant: React.FC<AssistantProps> = ({
           break;
       }
 
-      if (newMessage && !messages.some(m => m.text === newMessage!.text)) {
-        setMessages(prev => [...prev, newMessage!]);
-      }
+      // Solo agregar si no existe ya un mensaje con el mismo texto
+      setMessages(prev => {
+        if (newMessage && !prev.some(m => m.text === newMessage!.text)) {
+          return [...prev, newMessage];
+        }
+        return prev;
+      });
     };
 
     const timer = setTimeout(addContextualMessage, 1000);
     return () => clearTimeout(timer);
-  }, [currentScreen, hasReceipt, hasAppliances, messages]);
+  }, [currentScreen, hasReceipt, hasAppliances]); // Removido 'messages' de las dependencias
 
   const handleActionClick = (screen: Screen) => {
     onNavigate(screen);
