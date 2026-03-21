@@ -1,17 +1,31 @@
 import { GoogleGenAI } from "@google/genai";
-import * as fs from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 
 // Usa la clave API desde el archivo .env
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+
+// Verificar que tenemos una clave API en el navegador
 if (!apiKey) {
-  console.warn("Advertencia: no se encontró VITE_GEMINI_API_KEY en las variables de entorno.");
+  console.error("Error: VITE_GEMINI_API_KEY no está definida en el archivo .env");
 }
-const ai = new GoogleGenAI(apiKey ? { apiKey } : {});
+
+// Inicializar la API de Gemini con la clave API
+let ai: GoogleGenAI;
+try {
+  ai = new GoogleGenAI(apiKey);
+} catch (error) {
+  console.error("Error al inicializar GoogleGenAI:", error);
+  // Creamos un objeto simulado para evitar errores en tiempo de ejecución si falla la inicialización
+  ai = {
+    models: {
+      generateContent: async () => ({ 
+        text: "Error: No se pudo inicializar la API de Google Gemini. Verifica tu API Key."
+      })
+    }
+  } as unknown as GoogleGenAI;
+}
 
 // Función para extraer JSON del texto
-function extractJson(text: string): string | null {
+function extractJson(text: string | undefined): string | null {
   if (!text || typeof text !== "string") return null;
   // Buscar bloque ```json ... ```
   const codeBlock = /```json\s*([\s\S]*?)```/i.exec(text);
@@ -60,40 +74,48 @@ export async function queryImage(
     { text: promptText },
   ];
 
-  const res = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents,
-  });
+  try {
+    const res = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents,
+    });
 
-  const rawText = res.text;
-  let jsonData = null;
-  
-  // Extraer JSON si existe
-  const candidate = extractJson(rawText);
-  if (candidate) {
-    try {
-      jsonData = JSON.parse(candidate);
-    } catch (e) {
-      console.warn("Se encontró bloque JSON pero no es válido:", e);
+    const rawText = res.text || "";
+    let jsonData = null;
+    
+    // Extraer JSON si existe
+    const candidate = extractJson(rawText);
+    if (candidate) {
+      try {
+        jsonData = JSON.parse(candidate);
+      } catch (e) {
+        console.warn("Se encontró bloque JSON pero no es válido:", e);
+      }
     }
-  }
 
-  // Si no se pudo extraer JSON, intentar limpieza
-  if (!jsonData) {
-    try {
-      const cleanPrompt = `La respuesta anterior fue:\n\n${rawText}\n\nPor favor, convierte la respuesta anterior en JSON válido y devuelve SOLO el JSON.`;
-      const clean = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ text: cleanPrompt }],
-      });
-      const candidateClean = extractJson(clean.text) || clean.text;
-      jsonData = JSON.parse(candidateClean);
-    } catch (e) {
-      console.warn("Reintento de limpieza falló:", e);
+    // Si no se pudo extraer JSON, intentar limpieza
+    if (!jsonData && rawText) {
+      try {
+        const cleanPrompt = `La respuesta anterior fue:\n\n${rawText}\n\nPor favor, convierte la respuesta anterior en JSON válido y devuelve SOLO el JSON.`;
+        const clean = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [{ text: cleanPrompt }],
+        });
+        const cleanText = clean.text || "";
+        const candidateClean = extractJson(cleanText) || cleanText;
+        if (candidateClean) {
+          jsonData = JSON.parse(candidateClean);
+        }
+      } catch (e) {
+        console.warn("Reintento de limpieza falló:", e);
+      }
     }
-  }
 
-  return { rawText, jsonData };
+    return { rawText, jsonData };
+  } catch (error) {
+    console.error("Error al consultar imagen con Gemini:", error);
+    return { rawText: "Error al procesar la imagen", jsonData: null };
+  }
 }
 
 // Función para consultar múltiples imágenes juntas
@@ -106,20 +128,30 @@ export async function queryMultipleImages(
     { text: promptText },
   ];
 
-  const res = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents,
-  });
+  try {
+    const res = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents,
+    });
 
-  return res.text;
+    return res.text || "No se pudo obtener una respuesta";
+  } catch (error) {
+    console.error("Error al consultar múltiples imágenes:", error);
+    return "Error al procesar las imágenes";
+  }
 }
 
 // Función para chatear con Gemini
 export async function chatWithGemini(message: string): Promise<string> {
-  const res = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [{ text: message }],
-  });
+  try {
+    const res = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ text: message }],
+    });
 
-  return res.text;
+    return res.text || "No se pudo obtener una respuesta";
+  } catch (error) {
+    console.error("Error al chatear con Gemini:", error);
+    return "Lo siento, tuve un problema al procesar tu mensaje. Por favor, inténtalo de nuevo.";
+  }
 }

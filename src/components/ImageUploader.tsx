@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { Camera, Upload, X } from 'lucide-react';
-import { fileToBase64, queryImage } from '../services/geminiService';
+// Importamos ambos servicios y usamos un if para decidir cuál usar
+import * as geminiService from '../services/geminiService';
+import * as geminiServiceMock from '../services/geminiServiceMock';
+
+// Determinar qué servicio usar
+const useMock = import.meta.env.VITE_USE_MOCK === 'true';
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const useRealService = !useMock && !!apiKey;
+
+console.log("ImageUploader usando servicio real:", useRealService ? "Sí" : "No (modo simulado)");
+const { fileToBase64, queryImage } = useRealService ? geminiService : geminiServiceMock;
 
 interface ImageUploaderProps {
   type: 'receipt' | 'appliance';
