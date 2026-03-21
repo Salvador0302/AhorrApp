@@ -8,6 +8,7 @@ import {
   type Receipt,
   type Appliance
 } from '../services/advisorService';
+import { buildKnowledgeBase } from '../services/knowledgeBase';
 
 interface AdvisorAssistantProps {
   currentScreen: Screen;
@@ -48,7 +49,26 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
   useEffect(() => {
     // Mensaje de bienvenida del asistente de recomendaciones
     const initWelcome = async () => {
-      const welcomeText = `🎉 ¡Hola! Soy tu Asistente de Recomendaciones. Ya tengo toda tu información y estoy listo para ayudarte a optimizar tu consumo energético. Puedo darte consejos personalizados, responder tus preguntas y analizar tu consumo. ¿En qué te puedo ayudar?`;
+      // Construir base de conocimientos para personalizar el saludo
+      const kb = buildKnowledgeBase(receipt, appliances);
+      
+      let welcomeText = `🎉 ¡Hola! Soy tu Asistente de Recomendaciones. `;
+      
+      if (kb.receipt.exists && kb.appliances.total > 0) {
+        welcomeText += `He analizado tu recibo (${kb.receipt.consumption} kWh, $${kb.receipt.amount}) y tus ${kb.appliances.total} electrodomésticos. `;
+        
+        if (kb.appliances.highestConsumer) {
+          welcomeText += `Tu ${kb.appliances.highestConsumer.name} es tu mayor consumidor ($${kb.appliances.highestConsumer.cost.toFixed(2)}/mes). `;
+        }
+        
+        if (kb.insights.potentialSavings > 0) {
+          welcomeText += `Puedes ahorrar hasta $${kb.insights.potentialSavings.toFixed(2)}/mes con las recomendaciones correctas. `;
+        }
+      } else {
+        welcomeText += `Ya tengo toda tu información y estoy listo para ayudarte a optimizar tu consumo energético. `;
+      }
+      
+      welcomeText += `Puedo responder preguntas específicas, dar consejos personalizados y analizar tu consumo. ¿En qué te puedo ayudar?`;
 
       const welcomeMessage: Message = {
         id: '1',
@@ -77,17 +97,50 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     };
 
     initWelcome();
-  }, []);
+  }, [receipt, appliances]);
 
   useEffect(() => {
     // Mensajes contextuales enfocados en interacción y recomendaciones
     const addContextualMessage = async () => {
       if (currentScreen === 'recommendations' && messages.length === 1) {
+        const kb = buildKnowledgeBase(receipt, appliances);
+        
+        let contextText = '💡 Estás en la pantalla de recomendaciones. ';
+        
+        if (kb.insights.recommendations.length > 0) {
+          contextText += `He detectado ${kb.insights.recommendations.length} observaciones clave en tu consumo. `;
+        }
+        
+        contextText += 'Puedes preguntarme cosas como: ';
+        const sampleQuestions = [
+          '"¿Cuánto consume mi refrigerador?"',
+          '"¿Por qué aumentó mi consumo?"',
+          '"¿Cómo puedo ahorrar más?"',
+          '"Compara mi consumo actual con el anterior"'
+        ];
+        contextText += sampleQuestions.slice(0, 2).join(', ') + ' o cualquier otra pregunta sobre ahorro energético.';
+        
         const contextMessage: Message = {
           id: Date.now().toString(),
-          text: '💡 Estás en la pantalla de recomendaciones. Aquí puedes ver todos los tips que he generado para ti. También puedes preguntarme cualquier cosa sobre ahorro energético.',
+          text: contextText,
           isBot: true,
-          timestamp: new Date()
+          timestamp: new Date(),
+          actions: kb.appliances.highestConsumer ? [
+            {
+              label: `¿Cómo ahorrar con mi ${kb.appliances.highestConsumer?.name}?`,
+              action: () => {
+                const highestName = kb.appliances.highestConsumer?.name || 'electrodoméstico';
+                const userMsg: Message = {
+                  id: Date.now().toString(),
+                  text: `¿Cómo puedo ahorrar con mi ${highestName}?`,
+                  isBot: false,
+                  timestamp: new Date()
+                };
+                setMessages(prev => [...prev, userMsg]);
+                handleSuggestedQuestion(`¿Cómo puedo ahorrar con mi ${highestName}?`);
+              }
+            }
+          ] : undefined
         };
         
         if (!messages.some(m => m.text.includes('pantalla de recomendaciones'))) {
@@ -98,7 +151,43 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
     const timer = setTimeout(addContextualMessage, 1500);
     return () => clearTimeout(timer);
-  }, [currentScreen, messages]);
+  }, [currentScreen, messages, receipt, appliances]);
+
+  const handleSuggestedQuestion = async (question: string) => {
+    setIsLoading(true);
+
+    const loadingId = Date.now().toString();
+    const loadingMessage: Message = {
+      id: loadingId,
+      text: "Analizando... 🔍",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+
+    try {
+      const reply = await generateBotReply(question);
+      setMessages(prev =>
+        prev.map(msg => (msg.id === loadingId ? reply : msg))
+      );
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === loadingId
+            ? {
+                id: loadingId,
+                text: '❌ Lo siento, tuve un problema. ¿Podrías intentarlo de nuevo?',
+                isBot: true,
+                timestamp: new Date()
+              }
+            : msg
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleQuickAction = async (actionType: 'recommendation' | 'analysis' | 'tips') => {
     const userMessage: Message = {
@@ -365,12 +454,36 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
             Tips
           </button>
         </div>
+        {/* Preguntas sugeridas */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <button
+            onClick={() => {
+              const q = '¿Cuánto gasto al mes?';
+              setInputValue(q);
+            }}
+            disabled={isLoading}
+            className="bg-white/5 hover:bg-white/10 text-white/70 px-2 py-1.5 rounded text-left disabled:opacity-40"
+          >
+            💰 ¿Cuánto gasto al mes?
+          </button>
+          <button
+            onClick={() => {
+              const q = '¿Qué consume más?';
+              setInputValue(q);
+            }}
+            disabled={isLoading}
+            className="bg-white/5 hover:bg-white/10 text-white/70 px-2 py-1.5 rounded text-left disabled:opacity-40"
+          >
+            🔍 ¿Qué consume más?
+          </button>
+        </div>
+        
         <div className="flex items-center gap-2">
           <input
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Pregúntame sobre ahorro energético..."
+            placeholder="Ej: ¿Cuánto consume mi refrigerador?"
             disabled={isLoading}
             className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
             aria-label="Mensaje para el asistente"
