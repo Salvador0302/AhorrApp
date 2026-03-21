@@ -16,16 +16,9 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
-  actions?: Array<{
-    label: string;
-    screen: Screen;
-    icon?: string;
-  }>;
 }
 
 const DataAssistant: React.FC<DataAssistantProps> = ({ 
-  currentScreen, 
-  onNavigate, 
   onClose, 
   hasReceipt, 
   hasAppliances 
@@ -40,159 +33,53 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
   }, [messages]);
 
   useEffect(() => {
-    // Mensaje de bienvenida enfocado en carga de datos
+    // Mensaje de bienvenida conversacional
+    let welcomeText = '👋 ¡Hola! Soy tu Asistente Virtual de AhorrApp.\n\n';
+    
+    if (!hasReceipt && !hasAppliances) {
+      welcomeText += '� Para comenzar a optimizar tu consumo energético, necesito que:\n\n';
+      welcomeText += '1️⃣ Subas tu recibo de luz (ve a la pantalla "Recibo")\n';
+      welcomeText += '2️⃣ Registres tus electrodomésticos (ve a la pantalla "Aparatos")\n\n';
+      welcomeText += '💬 Mientras tanto, puedes preguntarme sobre:\n';
+      welcomeText += '• ¿Cómo subir mi recibo?\n';
+      welcomeText += '• ¿Cómo registrar electrodomésticos?\n';
+      welcomeText += '• ¿Qué información necesito?\n';
+      welcomeText += '• Tips generales de ahorro\n\n';
+      welcomeText += '¿En qué te puedo ayudar?';
+    } else if (!hasReceipt) {
+      welcomeText += '✅ Ya registraste tus electrodomésticos.\n\n';
+      welcomeText += '📄 Ahora necesito que subas tu recibo de luz para completar tu perfil.\n\n';
+      welcomeText += 'Ve a la pantalla "Recibo" para tomar una foto de tu factura.\n\n';
+      welcomeText += '¿Tienes alguna pregunta?';
+    } else if (!hasAppliances) {
+      welcomeText += '✅ Ya subiste tu recibo de luz.\n\n';
+      welcomeText += '🔌 Ahora necesito que registres tus electrodomésticos.\n\n';
+      welcomeText += 'Ve a la pantalla "Aparatos" para agregar tus dispositivos.\n\n';
+      welcomeText += '¿Tienes alguna pregunta?';
+    }
+    
     const welcomeMessage: Message = {
       id: '1',
-      text: '👋 ¡Hola! Soy tu asistente de registro de datos. Mi trabajo es ayudarte a cargar tu recibo de luz y registrar tus electrodomésticos. Una vez completes estos pasos, te presentaré a mi compañero, el asistente de recomendaciones. 🎯',
+      text: welcomeText,
       isBot: true,
-      timestamp: new Date(),
-      actions: [
-        { label: '📄 Subir Recibo', screen: 'receipt', icon: '📄' },
-        { label: '🔌 Registrar Electrodomésticos', screen: 'appliances', icon: '🔌' }
-      ]
-    };
-    setMessages([welcomeMessage]);
-  }, []);
-
-  useEffect(() => {
-    const addContextualMessage = () => {
-      let newMessage: Message | null = null;
-
-      // Mensajes contextuales enfocados en carga de datos
-      switch (currentScreen) {
-        case 'receipt':
-          if (!hasReceipt) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '📸 Perfecto, estás en la pantalla de recibos. Toma una foto de tu recibo de luz y yo lo analizaré automáticamente. Necesito extraer información como tu consumo, monto a pagar y fecha de vencimiento.',
-              isBot: true,
-              timestamp: new Date()
-            };
-          } else {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '✅ ¡Excelente! Ya tengo tu recibo registrado. Ahora necesito que registres tus electrodomésticos para tener la información completa.',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '🔌 Registrar Electrodomésticos', screen: 'appliances' }
-              ]
-            };
-          }
-          break;
-
-        case 'appliances':
-          if (!hasAppliances) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '🔌 Genial, ahora vamos a registrar tus electrodomésticos. Puedes usar la cámara para detectarlos automáticamente o agregarlos manualmente. Necesito saber cuáles tienes y cuántas horas al día los usas.',
-              isBot: true,
-              timestamp: new Date()
-            };
-          } else if (!hasReceipt) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '👍 ¡Bien! Ya tienes electrodomésticos registrados. Ahora solo falta que subas tu recibo de luz para completar el registro.',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '📄 Subir Recibo', screen: 'receipt' }
-              ]
-            };
-          } else {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '🎉 ¡Perfecto! Ya tienes toda la información registrada. Ahora puedes acceder al asistente de recomendaciones para obtener consejos personalizados y respuestas a tus preguntas. Ve a la pantalla de Recomendaciones para cambiar de asistente.',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '💡 Ver Recomendaciones', screen: 'recommendations' }
-              ]
-            };
-          }
-          break;
-
-        case 'home':
-          if (!hasReceipt && !hasAppliances) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '🚀 ¡Empecemos! Para poder darte las mejores recomendaciones, primero necesito que: 1️⃣ Subas tu recibo de luz, 2️⃣ Registres tus electrodomésticos. ¿Por cuál quieres empezar?',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '📄 Subir Recibo', screen: 'receipt' },
-                { label: '🔌 Registrar Electrodomésticos', screen: 'appliances' }
-              ]
-            };
-          } else if (!hasReceipt) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '📄 Ya tienes electrodomésticos registrados. Ahora necesitas subir tu recibo de luz para completar el registro.',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '📄 Ir a Recibo', screen: 'receipt' }
-              ]
-            };
-          } else if (!hasAppliances) {
-            newMessage = {
-              id: Date.now().toString(),
-              text: '🔌 Ya tienes tu recibo cargado. Ahora registra tus electrodomésticos para completar el proceso.',
-              isBot: true,
-              timestamp: new Date(),
-              actions: [
-                { label: '🔌 Ir a Electrodomésticos', screen: 'appliances' }
-              ]
-            };
-          }
-          break;
-      }
-
-      if (newMessage && !messages.some(m => m.text === newMessage!.text)) {
-        setMessages(prev => [...prev, newMessage!]);
-      }
-    };
-
-    const timer = setTimeout(addContextualMessage, 1000);
-    return () => clearTimeout(timer);
-  }, [currentScreen, hasReceipt, hasAppliances, messages]);
-
-  const handleActionClick = (screen: Screen) => {
-    onNavigate(screen);
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: `Ir a ${getScreenName(screen)}`,
-      isBot: false,
       timestamp: new Date()
     };
-    setMessages(prev => [...prev, userMessage]);
-  };
+    setMessages([welcomeMessage]);
+  }, [hasReceipt, hasAppliances]);
+
+  // Eliminamos mensajes contextuales automáticos - el usuario interactúa cuando quiera
+
+
 
   const generateBotReply = async (text: string): Promise<Message> => {
     const lower = text.toLowerCase();
     let geminiResponse: string | null = null;
-    let actions: Array<{ label: string; screen: Screen; icon?: string }> | undefined;
-
-    // Acciones solo para carga de datos
-    if (/(recibo|factura)/.test(lower)) {
-      actions = [{ label: '📄 Ir a Recibo', screen: 'receipt' }];
-    } else if (/(aparat|electro|dispositivo)/.test(lower)) {
-      actions = [{ label: '🔌 Ir a Electrodomésticos', screen: 'appliances' }];
-    } else {
-      actions = [
-        { label: '📄 Recibo', screen: 'receipt' },
-        { label: '🔌 Electrodomésticos', screen: 'appliances' }
-      ];
-    }
 
     try {
       const contextPrompt = `
-        Eres el Asistente de Registro de Datos de AhorrApp. Tu ÚNICA función es ayudar a los usuarios a:
+        Eres el Asistente Virtual de AhorrApp. Tu función es ayudar a los usuarios a:
         1. Subir y registrar su recibo de luz
         2. Registrar sus electrodomésticos (manualmente o con cámara)
-        
-        NO das recomendaciones de ahorro, NO respondes preguntas sobre optimización energética.
-        Para eso existe otro asistente especializado que el usuario podrá usar después.
         
         Contexto actual:
         - Usuario ha subido recibo: ${hasReceipt ? 'Sí ✅' : 'No ❌'}
@@ -200,28 +87,44 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
         
         El usuario pregunta: "${text}"
         
-        Responde brevemente (máximo 2 frases) enfocándote SOLO en el registro de datos.
-        Si preguntan sobre recomendaciones o tips, explícales que existe otro asistente para eso.
-        Usa emojis relevantes.
+        Responde de forma conversacional y amigable (máximo 3 frases).
+        - Si preguntan sobre el registro, guíalos a las pantallas correctas
+        - Si preguntan sobre recomendaciones y AÚN NO tienen datos completos, explícales que primero necesitan completar el registro
+        - Si YA tienen datos completos (recibo Y electrodomésticos), felicítalos y diles que pueden ver recomendaciones
+        - Sé útil y usa emojis relevantes
       `;
       
       geminiResponse = await chatWithGemini(contextPrompt);
     } catch (error) {
       console.error("Error al consultar Gemini:", error);
       
-      // Respuestas de fallback enfocadas en carga de datos
+      // Respuestas de fallback
       if (/(recibo|factura)/.test(lower)) {
         geminiResponse = hasReceipt
-          ? '✅ Ya tienes un recibo registrado. Si quieres subir uno nuevo, ve a la pantalla de Recibo.'
-          : '📄 Para registrar tu recibo, ve a la pantalla de Recibo y toma una foto con tu cámara.';
+          ? '✅ Ya tienes un recibo registrado. Si quieres subir uno nuevo, ve a la pantalla "Recibo".'
+          : '📄 Para registrar tu recibo, ve a la pantalla "Recibo" y toma una foto de tu factura.';
       } else if (/(aparat|electro|dispositivo)/.test(lower)) {
         geminiResponse = hasAppliances
-          ? '✅ Ya tienes electrodomésticos registrados. Puedes agregar más o editarlos en la pantalla de Electrodomésticos.'
-          : '🔌 Para registrar tus electrodomésticos, ve a la pantalla correspondiente. Puedes usar la cámara o agregarlos manualmente.';
+          ? '✅ Ya tienes electrodomésticos registrados. Puedes agregar más o editarlos en la pantalla "Aparatos".'
+          : '🔌 Para registrar electrodomésticos, ve a la pantalla "Aparatos". Puedes usar la cámara o agregarlos manualmente.';
       } else if (/(tip|recomenda|ahorro|consejo)/.test(lower)) {
-        geminiResponse = '💡 Las recomendaciones las maneja mi compañero, el Asistente de Recomendaciones. Primero completa el registro de datos (recibo + electrodomésticos) y luego podrás acceder a él.';
+        if (hasReceipt && hasAppliances) {
+          geminiResponse = '🎉 ¡Genial! Ya tienes todo registrado. Ve a la pantalla "Recomendaciones" para obtener consejos personalizados basados en tus datos.';
+        } else {
+          geminiResponse = '💡 Para darte recomendaciones personalizadas, primero necesito que completes el registro de tu recibo y electrodomésticos.';
+        }
+      } else if (/(cómo|como|ayuda|qué|que)/.test(lower)) {
+        let helpText = '📋 Puedo ayudarte con:\n\n';
+        if (!hasReceipt) helpText += '• Cómo subir tu recibo\n';
+        if (!hasAppliances) helpText += '• Cómo registrar electrodomésticos\n';
+        if (hasReceipt && hasAppliances) {
+          helpText = '✅ Ya completaste el registro. Ahora puedes ver recomendaciones personalizadas en la pantalla "Recomendaciones".';
+        } else {
+          helpText += '\n¿Con cuál te ayudo?';
+        }
+        geminiResponse = helpText;
       } else {
-        geminiResponse = '📋 Mi función es ayudarte a registrar tu recibo y electrodomésticos. ¿En qué parte del registro necesitas ayuda?';
+        geminiResponse = '💬 Estoy aquí para ayudarte con el registro de tu recibo y electrodomésticos. ¿Qué necesitas saber?';
       }
     }
     
@@ -229,8 +132,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       id: Date.now().toString(),
       text: geminiResponse,
       isBot: true,
-      timestamp: new Date(),
-      actions
+      timestamp: new Date()
     };
   };
 
@@ -285,17 +187,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
     }
   };
 
-  const getScreenName = (screen: Screen): string => {
-    const names = {
-      home: 'Inicio',
-      receipt: 'Recibo',
-      appliances: 'Electrodomésticos',
-      recommendations: 'Recomendaciones',
-      payment: 'Pago',
-      history: 'Historial'
-    };
-    return names[screen];
-  };
+
 
   const getProgressMessage = (): string => {
     if (hasReceipt && hasAppliances) {
@@ -355,62 +247,65 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
                 ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30' 
                 : 'bg-white/10 border border-white/20'
             }`}>
-              <p className="text-white text-sm">{message.text}</p>
-              
-              {message.actions && (
-                <div className="mt-3 space-y-2">
-                  {message.actions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleActionClick(action.screen)}
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-medium py-2 px-3 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-1"
-                    >
-                      {action.icon && <span>{action.icon}</span>}
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <p className="text-white text-sm whitespace-pre-wrap">{message.text}</p>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Actions + Input */}
+      {/* Input Area */}
       <div className="p-3 border-t border-white/10 space-y-2">
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => handleActionClick('receipt')}
-            className={`p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 ${
-              hasReceipt 
-                ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-            aria-label="Ir a recibo"
-          >
-            <FileText className="w-4 h-4" />
-            Recibo {hasReceipt && '✓'}
-          </button>
-          <button
-            onClick={() => handleActionClick('appliances')}
-            className={`p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 ${
-              hasAppliances 
-                ? 'bg-green-500/20 text-green-400 border border-green-400/30' 
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-            aria-label="Ir a electrodomésticos"
-          >
-            <Camera className="w-4 h-4" />
-            Electrodomésticos {hasAppliances && '✓'}
-          </button>
+        {/* Estado del registro */}
+        <div className="flex gap-2 text-xs">
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+            hasReceipt ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/60'
+          }`}>
+            <FileText className="w-3 h-3" />
+            <span>Recibo {hasReceipt && '✓'}</span>
+          </div>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+            hasAppliances ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/60'
+          }`}>
+            <Camera className="w-3 h-3" />
+            <span>Aparatos {hasAppliances && '✓'}</span>
+          </div>
         </div>
+        
+        {/* Sugerencias rápidas */}
+        {!hasReceipt || !hasAppliances ? (
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {!hasReceipt && (
+              <button
+                onClick={() => setInputValue('¿Cómo subir mi recibo?')}
+                className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+              >
+                📄 ¿Cómo subir recibo?
+              </button>
+            )}
+            {!hasAppliances && (
+              <button
+                onClick={() => setInputValue('¿Cómo registrar electrodomésticos?')}
+                className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+              >
+                🔌 ¿Cómo registrar aparatos?
+              </button>
+            )}
+            <button
+              onClick={() => setInputValue('¿Qué información necesito?')}
+              className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+            >
+              ℹ️ ¿Qué necesito?
+            </button>
+          </div>
+        ) : null}
+        
         <div className="flex items-center gap-2">
           <input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Pregunta sobre registro de datos..."
+            placeholder={hasReceipt && hasAppliances ? "¡Registro completo! ¿Alguna pregunta?" : "Pregúntame lo que necesites..."}
             className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Mensaje para el asistente"
           />
