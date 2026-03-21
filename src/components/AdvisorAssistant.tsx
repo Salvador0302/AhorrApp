@@ -260,9 +260,10 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-30 max-h-[600px] flex flex-col overflow-hidden"
+      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-30 flex flex-col overflow-hidden"
       style={{
-        boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)'
+        boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
+        maxHeight: 'calc(100vh - 200px)'
       }}
     >
       {/* Efecto de brillo animado en el borde */}
@@ -306,7 +307,10 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       </div>
 
       {/* Messages mejorado */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] relative">
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative"
+        style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '200px' }}
+      >
         {/* Fondo con patrón sutil */}
         <div className="absolute inset-0 opacity-5" style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
