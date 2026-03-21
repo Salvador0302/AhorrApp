@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, MessageCircle, Lightbulb, TrendingDown, Sparkles } from 'lucide-react';
+import { X, MessageCircle, Sparkles } from 'lucide-react';
 import type { Screen } from '../App';
 import {
   generatePersonalizedRecommendation,
@@ -23,15 +23,9 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
-  actions?: Array<{
-    label: string;
-    action: () => void;
-    icon?: string;
-  }>;
 }
 
 const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
-  currentScreen,
   onClose,
   receipt,
   appliances
@@ -47,51 +41,44 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
   }, [messages]);
 
   useEffect(() => {
-    // Mensaje de bienvenida del asistente de recomendaciones
+    // Mensaje de bienvenida conversacional
     const initWelcome = async () => {
       // Construir base de conocimientos para personalizar el saludo
       const kb = buildKnowledgeBase(receipt, appliances);
       
-      let welcomeText = `🎉 ¡Hola! Soy tu Asistente de Recomendaciones. `;
+      let welcomeText = `👋 ¡Hola! Soy tu Asistente Virtual de AhorrApp. `;
       
       if (kb.receipt.exists && kb.appliances.total > 0) {
-        welcomeText += `He analizado tu recibo (${kb.receipt.consumption} kWh, $${kb.receipt.amount}) y tus ${kb.appliances.total} electrodomésticos. `;
+        welcomeText += `\n\n📊 He analizado tu información:\n`;
+        welcomeText += `• Recibo: ${kb.receipt.consumption} kWh por $${kb.receipt.amount} (${kb.receipt.period})\n`;
+        welcomeText += `• Electrodomésticos registrados: ${kb.appliances.total}\n`;
         
         if (kb.appliances.highestConsumer) {
-          welcomeText += `Tu ${kb.appliances.highestConsumer.name} es tu mayor consumidor ($${kb.appliances.highestConsumer.cost.toFixed(2)}/mes). `;
+          welcomeText += `• Mayor consumidor: ${kb.appliances.highestConsumer.name} ($${kb.appliances.highestConsumer.cost.toFixed(2)}/mes)\n`;
         }
         
-        if (kb.insights.potentialSavings > 0) {
-          welcomeText += `Puedes ahorrar hasta $${kb.insights.potentialSavings.toFixed(2)}/mes con las recomendaciones correctas. `;
+        if (kb.receipt.consumptionChange) {
+          const change = kb.receipt.consumptionChange;
+          welcomeText += `• Cambio vs mes anterior: ${change.direction === 'increase' ? '↑' : '↓'} ${change.difference} kWh (${change.percentage.toFixed(1)}%)\n`;
         }
+        
+        welcomeText += `\n💡 Puedo responder cualquier pregunta sobre tu consumo, costos, electrodomésticos o darte recomendaciones personalizadas.\n\n`;
+        welcomeText += `Por ejemplo, puedes preguntarme:\n`;
+        welcomeText += `• "¿Por qué aumentó mi consumo?"\n`;
+        welcomeText += `• "¿Cuánto gasta mi refrigerador?"\n`;
+        welcomeText += `• "¿Cómo puedo ahorrar más?"\n`;
+        welcomeText += `• "Dame consejos personalizados"\n\n`;
+        welcomeText += `¿Qué te gustaría saber? 😊`;
       } else {
-        welcomeText += `Ya tengo toda tu información y estoy listo para ayudarte a optimizar tu consumo energético. `;
+        welcomeText += `Tengo acceso a toda tu información de consumo energético y estoy listo para responder tus preguntas.\n\n`;
+        welcomeText += `¿Qué te gustaría saber sobre tu consumo o cómo ahorrar energía?`;
       }
-      
-      welcomeText += `Puedo responder preguntas específicas, dar consejos personalizados y analizar tu consumo. ¿En qué te puedo ayudar?`;
 
       const welcomeMessage: Message = {
         id: '1',
         text: welcomeText,
         isBot: true,
-        timestamp: new Date(),
-        actions: [
-          {
-            label: '💡 Dame un consejo',
-            action: () => handleQuickAction('recommendation'),
-            icon: '💡'
-          },
-          {
-            label: '📊 Analiza mi consumo',
-            action: () => handleQuickAction('analysis'),
-            icon: '📊'
-          },
-          {
-            label: '✨ Tips rápidos',
-            action: () => handleQuickAction('tips'),
-            icon: '✨'
-          }
-        ]
+        timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     };
@@ -99,95 +86,8 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     initWelcome();
   }, [receipt, appliances]);
 
-  useEffect(() => {
-    // Mensajes contextuales enfocados en interacción y recomendaciones
-    const addContextualMessage = async () => {
-      if (currentScreen === 'recommendations' && messages.length === 1) {
-        const kb = buildKnowledgeBase(receipt, appliances);
-        
-        let contextText = '💡 Estás en la pantalla de recomendaciones. ';
-        
-        if (kb.insights.recommendations.length > 0) {
-          contextText += `He detectado ${kb.insights.recommendations.length} observaciones clave en tu consumo. `;
-        }
-        
-        contextText += 'Puedes preguntarme cosas como: ';
-        const sampleQuestions = [
-          '"¿Cuánto consume mi refrigerador?"',
-          '"¿Por qué aumentó mi consumo?"',
-          '"¿Cómo puedo ahorrar más?"',
-          '"Compara mi consumo actual con el anterior"'
-        ];
-        contextText += sampleQuestions.slice(0, 2).join(', ') + ' o cualquier otra pregunta sobre ahorro energético.';
-        
-        const contextMessage: Message = {
-          id: Date.now().toString(),
-          text: contextText,
-          isBot: true,
-          timestamp: new Date(),
-          actions: kb.appliances.highestConsumer ? [
-            {
-              label: `¿Cómo ahorrar con mi ${kb.appliances.highestConsumer?.name}?`,
-              action: () => {
-                const highestName = kb.appliances.highestConsumer?.name || 'electrodoméstico';
-                const userMsg: Message = {
-                  id: Date.now().toString(),
-                  text: `¿Cómo puedo ahorrar con mi ${highestName}?`,
-                  isBot: false,
-                  timestamp: new Date()
-                };
-                setMessages(prev => [...prev, userMsg]);
-                handleSuggestedQuestion(`¿Cómo puedo ahorrar con mi ${highestName}?`);
-              }
-            }
-          ] : undefined
-        };
-        
-        if (!messages.some(m => m.text.includes('pantalla de recomendaciones'))) {
-          setMessages(prev => [...prev, contextMessage]);
-        }
-      }
-    };
-
-    const timer = setTimeout(addContextualMessage, 1500);
-    return () => clearTimeout(timer);
-  }, [currentScreen, messages, receipt, appliances]);
-
-  const handleSuggestedQuestion = async (question: string) => {
-    setIsLoading(true);
-
-    const loadingId = Date.now().toString();
-    const loadingMessage: Message = {
-      id: loadingId,
-      text: "Analizando... 🔍",
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, loadingMessage]);
-
-    try {
-      const reply = await generateBotReply(question);
-      setMessages(prev =>
-        prev.map(msg => (msg.id === loadingId ? reply : msg))
-      );
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.id === loadingId
-            ? {
-                id: loadingId,
-                text: '❌ Lo siento, tuve un problema. ¿Podrías intentarlo de nuevo?',
-                isBot: true,
-                timestamp: new Date()
-              }
-            : msg
-        )
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Eliminamos los mensajes contextuales automáticos para mantenerlo limpio
+  // El usuario interactúa cuando quiere
 
   const handleQuickAction = async (actionType: 'recommendation' | 'analysis' | 'tips') => {
     const userMessage: Message = {
@@ -270,21 +170,9 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       console.error('Error al generar respuesta:', error);
       return {
         id: Date.now().toString(),
-        text: '❌ Lo siento, tuve un problema al procesar tu pregunta. ¿Podrías reformularla?',
+        text: '❌ Lo siento, tuve un problema al procesar tu pregunta. ¿Podrías reformularla o intentar con otra pregunta?',
         isBot: true,
-        timestamp: new Date(),
-        actions: [
-          {
-            label: '💡 Dame un consejo',
-            action: () => handleQuickAction('recommendation'),
-            icon: '💡'
-          },
-          {
-            label: '📊 Analiza mi consumo',
-            action: () => handleQuickAction('analysis'),
-            icon: '📊'
-          }
-        ]
+        timestamp: new Date()
       };
     }
   };
@@ -402,79 +290,43 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
               }`}
             >
               <p className="text-white text-sm whitespace-pre-wrap">{message.text}</p>
-
-              {message.actions && (
-                <div className="mt-3 space-y-2">
-                  {message.actions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={action.action}
-                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium py-2 px-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all flex items-center justify-center gap-1"
-                    >
-                      {action.icon && <span>{action.icon}</span>}
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Actions + Input */}
+      {/* Input Area */}
       <div className="p-3 border-t border-white/10 space-y-2">
-        <div className="grid grid-cols-3 gap-2">
+        {/* Sugerencias de preguntas rápidas */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
           <button
-            onClick={() => handleQuickAction('recommendation')}
+            onClick={() => setInputValue('¿Cuánto gasto al mes?')}
             disabled={isLoading}
-            className="p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 bg-white/10 text-white/70 hover:bg-white/20 disabled:opacity-40"
-            aria-label="Consejo"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            <Lightbulb className="w-4 h-4" />
-            Consejo
+            💰 ¿Cuánto gasto?
+          </button>
+          <button
+            onClick={() => setInputValue('¿Qué consume más?')}
+            disabled={isLoading}
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
+          >
+            🔍 ¿Qué consume más?
+          </button>
+          <button
+            onClick={() => setInputValue('¿Cómo puedo ahorrar?')}
+            disabled={isLoading}
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
+          >
+            � ¿Cómo ahorrar?
           </button>
           <button
             onClick={() => handleQuickAction('analysis')}
             disabled={isLoading}
-            className="p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 bg-white/10 text-white/70 hover:bg-white/20 disabled:opacity-40"
-            aria-label="Análisis"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            <TrendingDown className="w-4 h-4" />
-            Análisis
-          </button>
-          <button
-            onClick={() => handleQuickAction('tips')}
-            disabled={isLoading}
-            className="p-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center gap-1 bg-white/10 text-white/70 hover:bg-white/20 disabled:opacity-40"
-            aria-label="Tips"
-          >
-            <Sparkles className="w-4 h-4" />
-            Tips
-          </button>
-        </div>
-        {/* Preguntas sugeridas */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <button
-            onClick={() => {
-              const q = '¿Cuánto gasto al mes?';
-              setInputValue(q);
-            }}
-            disabled={isLoading}
-            className="bg-white/5 hover:bg-white/10 text-white/70 px-2 py-1.5 rounded text-left disabled:opacity-40"
-          >
-            💰 ¿Cuánto gasto al mes?
-          </button>
-          <button
-            onClick={() => {
-              const q = '¿Qué consume más?';
-              setInputValue(q);
-            }}
-            disabled={isLoading}
-            className="bg-white/5 hover:bg-white/10 text-white/70 px-2 py-1.5 rounded text-left disabled:opacity-40"
-          >
-            🔍 ¿Qué consume más?
+            � Analizar consumo
           </button>
         </div>
         
