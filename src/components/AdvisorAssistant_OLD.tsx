@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, MessageCircle, Sparkles, Send, Zap, TrendingUp, Lightbulb } from 'lucide-react';
+import { X, MessageCircle, Sparkles } from 'lucide-react';
 import type { Screen } from '../App';
 import {
   generatePersonalizedRecommendation,
@@ -103,7 +103,10 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     };
 
     initWelcome();
-  }, []);
+  }, []); // Solo se ejecuta una vez al montar el componente
+
+  // Eliminamos los mensajes contextuales automáticos para mantenerlo limpio
+  // El usuario interactúa cuando quiere
 
   const handleQuickAction = async (actionType: 'recommendation' | 'analysis' | 'tips') => {
     const userMessage: Message = {
@@ -247,133 +250,98 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl z-30 hover:scale-110 transition-transform duration-300 group"
-        style={{
-          boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(236, 72, 153, 0.2)'
-        }}
+        className="fixed bottom-24 right-4 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg z-30 animate-bounce"
       >
-        <MessageCircle className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-black animate-pulse" />
+        <MessageCircle className="w-6 h-6 text-white" />
       </button>
     );
   }
 
   return (
-    <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-30 max-h-[600px] flex flex-col overflow-hidden"
-      style={{
-        boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)'
-      }}
-    >
-      {/* Efecto de brillo animado en el borde */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent animate-pulse" />
-      </div>
-
-      {/* Header mejorado */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm relative z-10">
+    <div className="fixed bottom-24 right-4 left-4 bg-black/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl z-30 max-h-96 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900 animate-pulse" />
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h3 className="text-white font-bold text-base bg-gradient-to-r from-purple-200 via-pink-200 to-orange-200 bg-clip-text text-transparent">
-              Asistente AhorrApp
+            <h3 className="text-white font-semibold text-sm">
+              Asistente de Recomendaciones
             </h3>
-            <p className="text-white/60 text-xs flex items-center gap-1">
-              <Zap className="w-3 h-3" />
-              En línea • Listo para ayudar
+            <p className="text-white/60 text-xs">
+              💡 Experto en ahorro energético
             </p>
           </div>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           <button
             onClick={() => setIsMinimized(true)}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200 group"
+            className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <span className="text-white text-sm group-hover:scale-110 inline-block transition-transform">−</span>
+            <span className="text-white text-sm">−</span>
           </button>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 transition-all duration-200 group"
+            className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <X className="w-4 h-4 text-white group-hover:text-red-400 transition-colors" />
+            <X className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>
 
-      {/* Messages mejorado */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] relative">
-        {/* Fondo con patrón sutil */}
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-          backgroundSize: '24px 24px'
-        }} />
-        
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
         {messages.map(message => (
           <div
             key={message.id}
-            className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} animate-fadeIn`}
+            className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
           >
             <div
-              className={`max-w-[85%] p-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-[1.02] ${
+              className={`max-w-[80%] p-3 rounded-2xl ${
                 message.isBot
-                  ? 'bg-gradient-to-br from-purple-600/30 via-pink-600/20 to-orange-600/30 border border-purple-400/40 backdrop-blur-sm'
-                  : 'bg-gradient-to-br from-white/15 to-white/5 border border-white/20 backdrop-blur-sm'
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30'
+                  : 'bg-white/10 border border-white/20'
               }`}
-              style={message.isBot ? {
-                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              } : {
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              }}
             >
-              <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-              <span className="text-white/40 text-xs mt-2 block">
-                {message.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-              </span>
+              <p className="text-white text-sm whitespace-pre-wrap">{message.text}</p>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area mejorado */}
-      <div className="p-4 border-t border-white/10 bg-gradient-to-b from-transparent to-black/30 backdrop-blur-sm space-y-3 relative z-10">
-        {/* Sugerencias de preguntas rápidas mejoradas */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      {/* Input Area */}
+      <div className="p-3 border-t border-white/10 space-y-2">
+        {/* Sugerencias de preguntas rápidas */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
           <button
             onClick={() => setInputValue('¿Cuánto gasto al mes?')}
             disabled={isLoading}
-            className="flex-shrink-0 bg-gradient-to-r from-purple-600/30 to-pink-600/30 hover:from-purple-600/50 hover:to-pink-600/50 border border-purple-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full disabled:opacity-40 transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            <TrendingUp className="w-3.5 h-3.5" />
-            ¿Cuánto gasto?
+            💰 ¿Cuánto gasto?
           </button>
           <button
             onClick={() => setInputValue('¿Qué consume más?')}
             disabled={isLoading}
-            className="flex-shrink-0 bg-gradient-to-r from-orange-600/30 to-red-600/30 hover:from-orange-600/50 hover:to-red-600/50 border border-orange-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full disabled:opacity-40 transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            <Zap className="w-3.5 h-3.5" />
-            ¿Qué consume más?
+            🔍 ¿Qué consume más?
           </button>
           <button
             onClick={() => setInputValue('¿Cómo puedo ahorrar?')}
             disabled={isLoading}
-            className="flex-shrink-0 bg-gradient-to-r from-green-600/30 to-emerald-600/30 hover:from-green-600/50 hover:to-emerald-600/50 border border-green-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full disabled:opacity-40 transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            <Lightbulb className="w-3.5 h-3.5" />
-            ¿Cómo ahorrar?
+            � ¿Cómo ahorrar?
           </button>
           <button
             onClick={() => handleQuickAction('analysis')}
             disabled={isLoading}
-            className="flex-shrink-0 bg-gradient-to-r from-blue-600/30 to-cyan-600/30 hover:from-blue-600/50 hover:to-cyan-600/50 border border-blue-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full disabled:opacity-40 transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
+            className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full disabled:opacity-40 transition-all"
           >
-            📊 Analizar
+            � Analizar consumo
           </button>
         </div>
         
@@ -382,27 +350,17 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Pregúntame sobre tu consumo energético..."
+            placeholder="Ej: ¿Cuánto consume mi refrigerador?"
             disabled={isLoading}
-            className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-40 backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
+            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
             aria-label="Mensaje para el asistente"
           />
           <button
             onClick={handleSend}
             disabled={!inputValue.trim() || isLoading}
-            className="px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-purple-600 hover:to-pink-600 transition-all"
           >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span className="hidden sm:inline">Pensando...</span>
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Enviar</span>
-              </>
-            )}
+            Enviar
           </button>
         </div>
       </div>

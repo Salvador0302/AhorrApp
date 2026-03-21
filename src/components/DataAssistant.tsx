@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, MessageCircle, FileText, Camera } from 'lucide-react';
+import { X, MessageCircle, FileText, Camera, Send, Zap } from 'lucide-react';
 import type { Screen } from '../App';
 import { chatWithGemini } from '../services/geminiService';
 
@@ -202,83 +202,125 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg z-30 animate-bounce"
+        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl z-30 hover:scale-110 transition-transform duration-300 group"
+        style={{
+          boxShadow: '0 0 30px rgba(59, 130, 246, 0.4), 0 0 60px rgba(6, 182, 212, 0.2)'
+        }}
       >
-        <MessageCircle className="w-6 h-6 text-white" />
+        <MessageCircle className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-400 rounded-full border-2 border-black animate-pulse" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-24 right-4 left-4 bg-black/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl z-30 max-h-96 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+    <div 
+      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-30 max-h-[600px] flex flex-col overflow-hidden"
+      style={{
+        boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(6, 182, 212, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)'
+      }}
+    >
+      {/* Efecto de brillo animado en el borde */}
+      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent animate-pulse" />
+      </div>
+
+      {/* Header mejorado */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm relative z-10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm">📋</span>
+          <div className="relative">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+              <span className="text-white text-lg">📋</span>
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-orange-400 rounded-full border-2 border-gray-900 animate-pulse" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-sm">Asistente de Registro</h3>
-            <p className="text-white/60 text-xs">{getProgressMessage()}</p>
+            <h3 className="text-white font-bold text-base bg-gradient-to-r from-blue-200 via-cyan-200 to-teal-200 bg-clip-text text-transparent">
+              Asistente de Registro
+            </h3>
+            <p className="text-white/60 text-xs flex items-center gap-1">
+              <Zap className="w-3 h-3" />
+              {getProgressMessage()}
+            </p>
           </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           <button
             onClick={() => setIsMinimized(true)}
-            className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200 group"
           >
-            <span className="text-white text-sm">−</span>
+            <span className="text-white text-sm group-hover:scale-110 inline-block transition-transform">−</span>
           </button>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 transition-all duration-200 group"
           >
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-white group-hover:text-red-400 transition-colors" />
           </button>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
+      {/* Messages mejorado */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] relative">
+        {/* Fondo con patrón sutil */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+          backgroundSize: '24px 24px'
+        }} />
+        
         {messages.map((message) => (
-          <div key={message.id} className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}>
-            <div className={`max-w-[80%] p-3 rounded-2xl ${
-              message.isBot 
-                ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30' 
-                : 'bg-white/10 border border-white/20'
-            }`}>
-              <p className="text-white text-sm whitespace-pre-wrap">{message.text}</p>
+          <div key={message.id} className={`flex ${message.isBot ? 'justify-start' : 'justify-end'} animate-fadeIn`}>
+            <div 
+              className={`max-w-[85%] p-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-[1.02] ${
+                message.isBot 
+                  ? 'bg-gradient-to-br from-blue-600/30 via-cyan-600/20 to-teal-600/30 border border-blue-400/40 backdrop-blur-sm' 
+                  : 'bg-gradient-to-br from-white/15 to-white/5 border border-white/20 backdrop-blur-sm'
+              }`}
+              style={message.isBot ? {
+                boxShadow: '0 4px 20px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              } : {
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              }}
+            >
+              <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+              <span className="text-white/40 text-xs mt-2 block">
+                {message.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-3 border-t border-white/10 space-y-2">
-        {/* Estado del registro */}
+      {/* Input Area mejorado */}
+      <div className="p-4 border-t border-white/10 bg-gradient-to-b from-transparent to-black/30 backdrop-blur-sm space-y-3 relative z-10">
+        {/* Estado del registro con diseño mejorado */}
         <div className="flex gap-2 text-xs">
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-            hasReceipt ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/60'
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+            hasReceipt 
+              ? 'bg-gradient-to-r from-green-600/30 to-emerald-600/30 border border-green-400/40 text-green-300 shadow-lg' 
+              : 'bg-white/5 border border-white/10 text-white/50'
           }`}>
-            <FileText className="w-3 h-3" />
-            <span>Recibo {hasReceipt && '✓'}</span>
+            <FileText className="w-3.5 h-3.5" />
+            <span className="font-medium">Recibo {hasReceipt && '✓'}</span>
           </div>
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
-            hasAppliances ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/60'
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+            hasAppliances 
+              ? 'bg-gradient-to-r from-green-600/30 to-emerald-600/30 border border-green-400/40 text-green-300 shadow-lg' 
+              : 'bg-white/5 border border-white/10 text-white/50'
           }`}>
-            <Camera className="w-3 h-3" />
-            <span>Aparatos {hasAppliances && '✓'}</span>
+            <Camera className="w-3.5 h-3.5" />
+            <span className="font-medium">Aparatos {hasAppliances && '✓'}</span>
           </div>
         </div>
         
-        {/* Sugerencias rápidas */}
+        {/* Sugerencias rápidas mejoradas */}
         {!hasReceipt || !hasAppliances ? (
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {!hasReceipt && (
               <button
                 onClick={() => setInputValue('¿Cómo subir mi recibo?')}
-                className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+                className="flex-shrink-0 bg-gradient-to-r from-blue-600/30 to-cyan-600/30 hover:from-blue-600/50 hover:to-cyan-600/50 border border-blue-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
               >
                 📄 ¿Cómo subir recibo?
               </button>
@@ -286,14 +328,14 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
             {!hasAppliances && (
               <button
                 onClick={() => setInputValue('¿Cómo registrar electrodomésticos?')}
-                className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+                className="flex-shrink-0 bg-gradient-to-r from-cyan-600/30 to-teal-600/30 hover:from-cyan-600/50 hover:to-teal-600/50 border border-cyan-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
               >
                 🔌 ¿Cómo registrar aparatos?
               </button>
             )}
             <button
               onClick={() => setInputValue('¿Qué información necesito?')}
-              className="flex-shrink-0 bg-white/5 hover:bg-white/10 text-white/70 text-xs px-2.5 py-1.5 rounded-full transition-all"
+              className="flex-shrink-0 bg-gradient-to-r from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 border border-indigo-400/30 text-white/80 hover:text-white text-xs px-3 py-2 rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-lg hover:scale-105"
             >
               ℹ️ ¿Qué necesito?
             </button>
@@ -306,15 +348,25 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={hasReceipt && hasAppliances ? "¡Registro completo! ¿Alguna pregunta?" : "Pregúntame lo que necesites..."}
-            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
             aria-label="Mensaje para el asistente"
           />
           <button
             onClick={handleSend}
             disabled={!inputValue.trim()}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:from-blue-600 hover:to-cyan-600 transition-all"
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:scale-105 flex items-center gap-2"
           >
-            Enviar
+            {!inputValue.trim() ? (
+              <>
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">Enviar</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">Enviar</span>
+              </>
+            )}
           </button>
         </div>
       </div>
