@@ -263,7 +263,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       </div>
 
       {/* Messages mejorado */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[400px] relative">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative" style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '200px' }}>
         {/* Fondo con patrón sutil */}
         <div className="absolute inset-0 opacity-5" style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
