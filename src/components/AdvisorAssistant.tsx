@@ -251,7 +251,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
+        className="fixed bottom-6 right-4 w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
         style={{
           boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(236, 72, 153, 0.2)'
         }}
@@ -264,10 +264,10 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
+      className="fixed bottom-6 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
       style={{
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
-        maxHeight: 'calc(100vh - 200px)'
+        maxHeight: 'calc(100vh - 96px)'
       }}
     >
       {/* Efecto de brillo animado en el borde */}
@@ -276,7 +276,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       </div>
 
       {/* Header mejorado */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm relative z-10">
+  <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm relative z-10 sticky top-0">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
@@ -313,7 +313,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       {/* Messages mejorado */}
       <div 
         className="flex-1 overflow-y-auto p-4 space-y-4 relative"
-        style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '200px' }}
+        style={{ maxHeight: 'calc(100vh - 280px)', minHeight: '200px' }}
       >
         {/* Fondo con patrón sutil */}
         <div className="absolute inset-0 opacity-5" style={{

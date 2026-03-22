@@ -333,7 +333,7 @@ const Assistant: React.FC<AssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg z-30 animate-bounce"
+        className="fixed bottom-6 right-4 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg z-30 animate-bounce"
       >
         <MessageCircle className="w-6 h-6 text-white" />
       </button>
@@ -341,9 +341,9 @@ const Assistant: React.FC<AssistantProps> = ({
   }
 
   return (
-    <div className="fixed bottom-24 right-4 left-4 bg-black/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl z-30 max-h-96 flex flex-col">
+    <div className="fixed bottom-6 right-4 left-4 md:left-auto md:w-[420px] bg-black/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl z-30 flex flex-col" style={{ maxHeight: 'calc(100vh - 96px)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+  <div className="flex items-center justify-between p-4 border-b border-white/10 sticky top-0 z-20 backdrop-blur-sm bg-black/90">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
             <span className="text-white text-sm">🤖</span>
@@ -370,7 +370,7 @@ const Assistant: React.FC<AssistantProps> = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
+  <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ maxHeight: 'calc(100vh - 300px)' }}>
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}>
             <div className={`max-w-[80%] p-3 rounded-2xl ${

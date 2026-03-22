@@ -207,7 +207,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
+        className="fixed bottom-6 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
         style={{
           boxShadow: '0 0 30px rgba(59, 130, 246, 0.4), 0 0 60px rgba(6, 182, 212, 0.2)'
         }}
@@ -220,10 +220,10 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
+      className="fixed bottom-6 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
       style={{
         boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(6, 182, 212, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
-        maxHeight: 'calc(100vh - 200px)' // Asegura que nunca sea más alto que la ventana menos espacio para ver el header
+        maxHeight: 'calc(100vh - 96px)' // Asegura que nunca sea más alto que la ventana y deje espacio para UI del navegador
       }}
     >
       {/* Efecto de brillo animado en el borde */}
@@ -232,7 +232,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       </div>
 
       {/* Header mejorado */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm relative z-10">
+  <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm relative z-10 sticky top-0">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
@@ -267,7 +267,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       </div>
 
       {/* Messages mejorado */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 relative" style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '200px' }}>
+  <div className="flex-1 overflow-y-auto p-4 space-y-4 relative" style={{ maxHeight: 'calc(100vh - 280px)', minHeight: '200px' }}>
         {/* Fondo con patrón sutil */}
         <div className="absolute inset-0 opacity-5" style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
