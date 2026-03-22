@@ -357,4 +357,4 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onNavigate }) => {
   );
 };
 
-export default HistoryScreen;
+export default HistoryScreen; 

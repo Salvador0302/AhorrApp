@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatCurrency } from '../utils/currency';
 import { FileText, TrendingUp, TrendingDown, Info, ArrowLeft, CheckCircle, Upload } from 'lucide-react';
 import type { Screen } from '../App';
 import ImageUploader from './ImageUploader';
+import {
+  evaluateAndMintGreenTokens,
+  getGreenTokenBalance,
+  type GreenMintResult
+} from '../services/greenTokenService';
+import { getReceiptTrend } from '../services/database';
 
 interface Receipt {
   id: string;
@@ -25,6 +31,52 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
   // Estado para mostrar banner de éxito inmediatamente después de procesar
   const [justProcessed, setJustProcessed] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
+  const [greenMintResult, setGreenMintResult] = useState<GreenMintResult | null>(null);
+  const [greenTokenBalance, setGreenTokenBalance] = useState(0);
+  const [preferredNetwork, setPreferredNetwork] = useState<'Base' | 'Polygon'>('Base');
+  const [receiptTrend, setReceiptTrend] = useState(() => getReceiptTrend(6));
+
+  useEffect(() => {
+    setGreenTokenBalance(getGreenTokenBalance());
+    setReceiptTrend(getReceiptTrend(6));
+  }, []);
+
+  const parseNumber = (value: unknown): number | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const normalized = Number(value.replace(',', '.').replace(/[^0-9.-]/g, ''));
+      if (Number.isFinite(normalized)) return normalized;
+    }
+    return null;
+  };
+
+  const buildReceiptFromOCR = (data: Record<string, unknown>, currentReceipt: Receipt | null): Receipt => {
+    const currentKWh = parseNumber(data.kWh) ?? 0;
+    const previousFromOCR = parseNumber(data.kWh_anterior);
+    const inferredPrevious = currentReceipt?.consumption;
+
+    return {
+      id: Date.now().toString(),
+      period: String(data.periodo || 'Periodo no identificado'),
+      consumption: currentKWh,
+      amount: parseNumber(data.costo) ?? 0,
+      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      previousConsumption: previousFromOCR ?? inferredPrevious,
+      image: typeof data.imagen === 'string' ? data.imagen : undefined
+    };
+  };
+
+  const processMint = (newReceipt: Receipt) => {
+    const mint = evaluateAndMintGreenTokens({
+      receiptId: newReceipt.id,
+      currentKWh: newReceipt.consumption,
+      previousKWh: newReceipt.previousConsumption,
+      network: preferredNetwork
+    });
+    setGreenMintResult(mint);
+    setGreenTokenBalance(getGreenTokenBalance());
+    setReceiptTrend(getReceiptTrend(6));
+  };
 
   const glossaryTerms = [
     { term: 'kWh', definition: 'Kilowatt-hora: unidad que mide tu consumo de energía' },
@@ -80,16 +132,9 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
             <ImageUploader 
               type="receipt"
               onProcessed={(data) => {
-                // Crear objeto de recibo a partir de datos de Gemini
-                const newReceipt: Receipt = {
-                  id: Date.now().toString(),
-                  period: data.periodo || 'Periodo no identificado',
-                  consumption: parseFloat(data.kWh) || 0,
-                  amount: parseFloat(data.costo) || 0,
-                  dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 15 días después
-                  previousConsumption: (parseFloat(data.kWh) || 0) * 0.9 // Simulamos un consumo anterior para comparación
-                };
+                const newReceipt = buildReceiptFromOCR(data as Record<string, unknown>, receipt);
                 onReceiptUpload(newReceipt);
+                processMint(newReceipt);
                 setJustProcessed(true);
                 setTimeout(() => setJustProcessed(false), 6000);
               }}
@@ -116,6 +161,45 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
               </div>
             </div>
           </div>
+
+          <div className="bg-emerald-500/10 backdrop-blur-sm rounded-xl border border-emerald-400/25 p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h4 className="text-emerald-300 font-medium mb-1 text-sm sm:text-base">Protocolo Green Tokens (L2)</h4>
+                <p className="text-white/70 text-xs sm:text-sm">Si el OCR valida reduccion de kWh vs mes anterior, se ejecuta mint() de GTKN en Base o Polygon.</p>
+              </div>
+              <select
+                value={preferredNetwork}
+                onChange={(e) => setPreferredNetwork(e.target.value as 'Base' | 'Polygon')}
+                className="bg-black/30 border border-emerald-300/30 rounded-lg px-2 py-1 text-xs text-white"
+                aria-label="Red L2 preferida"
+              >
+                <option value="Base">Base</option>
+                <option value="Polygon">Polygon</option>
+              </select>
+            </div>
+            <p className="text-emerald-200 text-sm mt-2">Balance actual: <span className="font-semibold">{greenTokenBalance} GTKN</span></p>
+          </div>
+
+          {receiptTrend.length > 1 && (
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-5">
+              <h4 className="text-white font-medium mb-3 text-sm sm:text-base">Evolucion de consumo (%) vs meses previos</h4>
+              <div className="space-y-2">
+                {receiptTrend.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between text-sm bg-black/20 rounded-lg px-3 py-2">
+                    <span className="text-white/80">{item.period}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-white/70">{item.consumption} kWh</span>
+                      <span className={`font-medium ${item.changeVsPreviousPercent === null ? 'text-white/50' : item.changeVsPreviousPercent <= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                        {item.changeVsPreviousPercent === null ? 'Base' : `${item.changeVsPreviousPercent > 0 ? '+' : ''}${item.changeVsPreviousPercent}%`}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-white/50 mt-2">Porcentaje calculado con respecto al recibo inmediatamente anterior: ((actual - previo) / previo) * 100.</p>
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -131,6 +215,29 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
                 <div className="text-sm">
                   <p className="text-green-300 font-medium">¡Recibo procesado con éxito!</p>
                   <p className="text-white/70 mt-1">Hemos extraído los datos clave y generado conclusiones iniciales basadas en tu consumo.</p>
+                </div>
+              </div>
+            )}
+
+            {greenMintResult && (
+              <div className={`mb-5 flex items-start gap-3 rounded-xl p-4 border ${greenMintResult.eligible ? 'bg-emerald-500/15 border-emerald-400/30' : 'bg-amber-500/15 border-amber-400/30'}`}>
+                <CheckCircle className={`w-6 h-6 flex-shrink-0 mt-0.5 ${greenMintResult.eligible ? 'text-emerald-300' : 'text-amber-300'}`} />
+                <div className="text-sm w-full">
+                  {greenMintResult.eligible ? (
+                    <>
+                      <p className="text-emerald-200 font-medium">Mint de GTKN confirmado en {greenMintResult.network}</p>
+                      <p className="text-white/80 mt-1">Reduccion validada: {greenMintResult.reductionKWh} kWh. Tokens emitidos: {greenMintResult.tokensMinted} GTKN.</p>
+                      <p className="text-white/70 mt-1">Ahorro mensual estimado: {formatCurrency(greenMintResult.monthlySavingsSoles, { decimals: 2 })}</p>
+                      {greenMintResult.txHash && (
+                        <p className="text-[11px] text-white/60 mt-1 break-all">tx: {greenMintResult.txHash}</p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-amber-200 font-medium">Mint no ejecutado</p>
+                      <p className="text-white/80 mt-1">{greenMintResult.reason}</p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -251,16 +358,9 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
               <ImageUploader 
                 type="receipt"
                 onProcessed={(data) => {
-                  // Crear objeto de recibo a partir de datos de Gemini
-                  const newReceipt: Receipt = {
-                    id: Date.now().toString(),
-                    period: data.periodo || 'Periodo no identificado',
-                    consumption: parseFloat(data.kWh) || 0,
-                    amount: parseFloat(data.costo) || 0,
-                    dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    previousConsumption: (parseFloat(data.kWh) || 0) * 0.9
-                  };
+                  const newReceipt = buildReceiptFromOCR(data as Record<string, unknown>, receipt);
                   onReceiptUpload(newReceipt);
+                  processMint(newReceipt);
                   setJustProcessed(true);
                   setTimeout(() => setJustProcessed(false), 6000);
                 }}
@@ -300,8 +400,14 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
           </div>
         )}
       </div>
+
+      <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-4">
+        <h4 className="text-white font-medium mb-2">Utilidad de GTKN</h4>
+        <p className="text-white/70 text-sm mb-2">B2C: canjea tokens por focos LED, merch o beneficios en el dashboard.</p>
+        <p className="text-white/70 text-sm">B2B: empresas locales pueden comprar GTKN para compensar su huella de carbono con trazabilidad descentralizada.</p>
+      </div>
     </div>
   );
 };
 
-export default ReceiptScreen;
+export default ReceiptScreen; 

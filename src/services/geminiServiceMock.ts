@@ -98,4 +98,4 @@ export async function chatWithGemini(message: string): Promise<string> {
   
   // Respuesta por defecto
   return "👋 Soy el asistente virtual de AhorraPE. Puedo ayudarte con información sobre tu consumo eléctrico, análisis de recibos, registro de electrodomésticos y consejos para ahorrar energía. ¿En qué puedo ayudarte hoy?";
-}
+} 

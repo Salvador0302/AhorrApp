@@ -83,4 +83,4 @@ export function setupGeminiProxy(app: Express) {
   });
 
   console.log('Proxy de Gemini configurado correctamente');
-}
+} 

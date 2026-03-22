@@ -3,10 +3,11 @@ import { formatCurrency } from '../utils/currency';
 import { 
   Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap, Trash2, 
   Snowflake, Wind, Shirt, Tv, Microwave, Fan, Laptop, 
-  Flame, Droplet, Battery, Square, UtensilsCrossed
+  Flame, Droplet, Battery, Square, UtensilsCrossed, ScanSearch
 } from 'lucide-react';
 import type { Screen } from '../App';
 import { fileToBase64, queryImage } from '../services/geminiService';
+import { runVampireScanner, type VampireScanResult } from '../services/vampireScannerService';
 
 interface Appliance {
   id: string;
@@ -34,9 +35,12 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
   onNavigate 
 }) => {
   const [isDetecting, setIsDetecting] = useState(false);
+  const [isVampireScanning, setIsVampireScanning] = useState(false);
+  const [vampireResult, setVampireResult] = useState<VampireScanResult | null>(null);
   const [editingAppliance, setEditingAppliance] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ consumption: 0, hoursPerDay: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const vampireInputRef = useRef<HTMLInputElement>(null);
 
   const commonAppliances = [
     { name: 'Refrigerador', type: 'cooling', consumption: 150, icon: Snowflake },
@@ -183,6 +187,44 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
     onApplianceAdd(newAppliance);
   };
 
+  const handleVampireScan = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsVampireScanning(true);
+    try {
+      const result = await runVampireScanner(file);
+      setVampireResult(result);
+
+      const applianceFromScan: Appliance = {
+        id: Date.now().toString(),
+        name: result.modelName ? `${result.brand || ''} ${result.modelName}`.trim() : `Equipo ${result.category}`,
+        type: result.category === 'refrigeracion'
+          ? 'cooling'
+          : result.category === 'climatizacion'
+          ? 'cooling'
+          : result.category === 'cocina'
+          ? 'cooking'
+          : result.category === 'lavado'
+          ? 'cleaning'
+          : result.category === 'entretenimiento'
+          ? 'entertainment'
+          : 'electronics',
+        consumption: Math.round(result.averageWatts),
+        hoursPerDay: Math.max(1, Math.round(result.estimatedUseHoursPerDay)),
+        detected: true
+      };
+
+      onApplianceAdd(applianceFromScan);
+    } catch (error) {
+      console.error('Error en Vampire Scanner:', error);
+      alert('No se pudo completar el Vampire Scanner. Intenta con una foto mas clara de la placa tecnica.');
+    } finally {
+      setIsVampireScanning(false);
+      if (vampireInputRef.current) vampireInputRef.current.value = '';
+    }
+  };
+
   const handleEdit = (appliance: Appliance) => {
     setEditingAppliance(appliance.id);
     setEditForm({
@@ -214,15 +256,17 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
   const totalDailyConsumption = appliances.reduce((sum, app) => sum + (app.consumption * app.hoursPerDay / 1000), 0);
   const estimatedMonthlyCost = totalDailyConsumption * 30 * 0.15;
 
-  if (isDetecting) {
+  if (isDetecting || isVampireScanning) {
     return (
       <div className="p-4 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Camera className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-white font-semibold text-lg mb-2">Analizando con Gemini AI...</h3>
-          <p className="text-white/70 text-sm mb-4">Identificando el electrodoméstico en la imagen</p>
+          <h3 className="text-white font-semibold text-lg mb-2">Analizando con IA Vision...</h3>
+          <p className="text-white/70 text-sm mb-4">
+            {isVampireScanning ? 'Escaner Inteligente: estimando consumo fantasma y ROI' : 'Identificando el electrodomestico en la imagen'}
+          </p>
           <div className="w-48 bg-white/10 rounded-full h-2 mx-auto mb-3">
             <div className="bg-gradient-to-r from-green-400 to-blue-400 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
           </div>
@@ -263,13 +307,21 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
       <div className="space-y-4">
         <h3 className="text-white font-medium text-sm">Agregar Electrodoméstico</h3>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
             className="bg-white/5 border border-white/10 text-white font-medium py-4 rounded-lg hover:bg-white/10 transition-all flex flex-col items-center gap-2"
           >
             <Camera className="w-5 h-5 text-white/70" />
             <span className="text-xs text-white/70">Detectar con IA</span>
+          </button>
+
+          <button
+            onClick={() => vampireInputRef.current?.click()}
+            className="bg-emerald-500/10 border border-emerald-400/30 text-white font-medium py-4 rounded-lg hover:bg-emerald-500/20 transition-all flex flex-col items-center gap-2"
+          >
+            <ScanSearch className="w-5 h-5 text-emerald-300" />
+            <span className="text-xs text-emerald-200">Escaner Inteligente</span>
           </button>
           
           <button
@@ -289,7 +341,64 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
           onChange={handleImageCapture}
           className="hidden"
         />
+
+        <input
+          ref={vampireInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleVampireScan}
+          className="hidden"
+        />
+
+        <p className="text-xs text-white/50">
+          El Escaner Inteligente usa un Modelo de IA multimodal para detectar categoria, antiguedad y consumo promedio. Luego compara con equipo Energy Star (A++) y calcula ROI.
+        </p>
       </div>
+
+      {vampireResult && (
+        <div className="bg-emerald-500/10 rounded-lg border border-emerald-400/20 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-emerald-200 font-semibold text-sm">Resultado del Escaner Inteligente</h3>
+            <span className="text-[11px] text-emerald-300/80">{new Date(vampireResult.createdAt).toLocaleDateString('es-PE')}</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div className="bg-black/20 rounded p-2 sm:col-span-2">
+              <p className="text-emerald-200/70">Modelo detectado</p>
+              <p className="text-white font-medium">{vampireResult.modelName ? `${vampireResult.brand || ''} ${vampireResult.modelName}`.trim() : 'No identificado'}</p>
+            </div>
+            <div className="bg-black/20 rounded p-2">
+              <p className="text-emerald-200/70">Categoria</p>
+              <p className="text-white font-medium capitalize">{vampireResult.category}</p>
+            </div>
+            <div className="bg-black/20 rounded p-2">
+              <p className="text-emerald-200/70">Edad estimada</p>
+              <p className="text-white font-medium">{vampireResult.estimatedAgeYears} anios</p>
+            </div>
+            <div className="bg-black/20 rounded p-2">
+              <p className="text-emerald-200/70">Consumo viejo</p>
+              <p className="text-white font-medium">{Math.round(vampireResult.averageWatts)} W</p>
+            </div>
+            <div className="bg-black/20 rounded p-2">
+              <p className="text-emerald-200/70">Consumo A++</p>
+              <p className="text-white font-medium">{Math.round(vampireResult.modernWatts)} W</p>
+            </div>
+          </div>
+
+          <div className="bg-black/20 rounded p-3 text-sm space-y-1">
+            <p className="text-white/90">Ahorro mensual estimado: <span className="font-semibold">{formatCurrency(vampireResult.monthlySavingsSoles)}</span></p>
+            <p className="text-white/90">Costo nuevo equipo: <span className="font-semibold">{formatCurrency(vampireResult.newEquipmentCostSoles)}</span></p>
+            <p className="text-emerald-200 font-semibold">
+              ROI (meses) = Costo nuevo / Ahorro mensual = {vampireResult.roiMonths === Number.POSITIVE_INFINITY ? 'No aplica' : vampireResult.roiMonths.toFixed(1)}
+            </p>
+            <p className="text-white/60 text-xs">
+              Fuente estimacion consumo: {vampireResult.webLookupSource && vampireResult.webLookupSource !== 'none' ? `${vampireResult.webLookupSource} (${Math.round((vampireResult.webLookupConfidence || 0) * 100)}%)` : 'IA + referencia por categoria'}
+            </p>
+            <p className="text-white/70 text-xs">{vampireResult.recommendation}</p>
+          </div>
+        </div>
+      )}
 
       {/* Common Appliances */}
       <div className="space-y-3">
@@ -448,4 +557,4 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
   );
 };
 
-export default AppliancesScreen;
+export default AppliancesScreen; 

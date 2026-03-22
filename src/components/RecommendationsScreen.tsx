@@ -338,4 +338,4 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
   );
 };
 
-export default RecommendationsScreen;
+export default RecommendationsScreen; 

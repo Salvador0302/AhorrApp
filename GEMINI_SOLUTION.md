@@ -48,4 +48,4 @@ Para simplificar el desarrollo, se ha implementado la siguiente solución:
    - Para entornos de producción, se debe usar un servidor proxy o API Gateway
    - El archivo `server/geminiProxy.ts` ya está preparado para esta funcionalidad
 
-La solución actual prioriza la simplicidad del desarrollo, pero está preparada para evolucionar hacia un modelo más seguro cuando sea necesario.
+La solución actual prioriza la simplicidad del desarrollo, pero está preparada para evolucionar hacia un modelo más seguro cuando sea necesario. 

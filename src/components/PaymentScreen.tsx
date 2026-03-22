@@ -382,4 +382,4 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
   );
 };
 
-export default PaymentScreen;
+export default PaymentScreen; 

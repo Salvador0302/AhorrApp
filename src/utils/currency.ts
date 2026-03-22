@@ -7,3 +7,4 @@ export function formatCurrency(value: number, options: CurrencyFormatOptions = {
   if (Number.isNaN(value) || !Number.isFinite(value)) return 'S/. 0.00';
   return `S/. ${value.toFixed(decimals)}`;
 }
+ 

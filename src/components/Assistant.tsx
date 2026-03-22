@@ -458,4 +458,4 @@ const Assistant: React.FC<AssistantProps> = ({
   );
 };
 
-export default Assistant;
+export default Assistant; 

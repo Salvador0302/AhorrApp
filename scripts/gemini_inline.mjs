@@ -50,3 +50,4 @@ Luego estima kWh/mes del electrodoméstico de la etiqueta y su costo mensual (S/
 }
 
 await main();
+ 

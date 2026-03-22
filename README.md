@@ -1,15 +1,57 @@
-# AhorrApp - Asistente con Gemini.
+# AhorrApp - IA para ahorro energetico en Peru
 
-Esta aplicación ayuda a los usuarios a optimizar su consumo eléctrico mediante el análisis inteligente de recibos y electrodomésticos.
+AhorrApp es un MVP para hackathon que combate la falta de transparencia en los recibos electricos en Peru.
 
-## Características
+Objetivo: traducir datos tecnicos complejos en decisiones simples para que los hogares reduzcan consumo, gasto y huella de carbono.
 
-- **Análisis de recibos** utilizando Google Gemini
-- **Chatbot inteligente** integrado con la API de Gemini
-- **Reconocimiento de etiquetas** de electrodomésticos
-- **Recomendaciones personalizadas** para reducir consumo
+## Caracteristicas
 
-## Configuración
+- Analisis de recibos con OCR asistido por Gemini
+- Asistente inteligente personalizado segun consumo y aparatos
+- Recomendaciones accionables y proyecciones de ahorro
+- Registro de electrodomesticos por foto o carga manual
+- Vampire Scanner (IA Vision + ROI de reemplazo)
+- Green Tokens (mint simulado en Base/Polygon por reduccion validada de kWh)
+
+## Problema que resuelve
+
+Muchas familias reciben facturas con bajo nivel de detalle util para tomar decisiones.
+
+Sin visibilidad clara, es dificil saber:
+- Que equipos disparan el consumo
+- Si los habitos de ahorro realmente funcionan
+- Cuando conviene reemplazar un equipo antiguo
+
+## Funcionalidades del MVP
+
+### 1) Vampire Scanner (IA Vision)
+
+- Entrada: foto de la placa tecnica o del equipo.
+- Motor: Gemini 1.5 Flash via API con prompt multimodal.
+- Salida IA:
+   - Categoria del equipo
+   - Edad estimada
+   - Consumo promedio en Watts
+- Comparativa: equipo actual vs alternativa moderna Energy Star A++.
+- ROI:
+
+$$ROI (meses) = \frac{Costo\ del\ nuevo\ equipo}{Ahorro\ mensual\ (S/.)}$$
+
+### 2) Protocolo Green Tokens
+
+- Validacion: si OCR detecta reduccion de kWh respecto al periodo anterior.
+- Mecania de contrato (simulada en MVP): ejecuta mint() de GTKN.
+- Red L2: Base o Polygon.
+- Utilidad:
+   - B2C: canje por merch o beneficios del dashboard
+   - B2B: compra de GTKN para compensacion local de huella (offsetting descentralizado)
+
+### 3) Asistente de ahorro
+
+- Chat contextual con datos de recibo y electrodomesticos.
+- Explica consumos, identifica riesgos y propone acciones concretas.
+
+## Configuracion
 
 1. **Clonar el repositorio**:
    ```bash
@@ -27,15 +69,16 @@ Esta aplicación ayuda a los usuarios a optimizar su consumo eléctrico mediante
    npm run dev
    ```
 
-> **Nota**: La API key de Google Gemini ya está incluida directamente en el código para facilitar el desarrollo.
+> Nota: para un entorno real, mover la API key a variables de entorno y backend.
 
-## Integración con Google Gemini
+## Integracion con Google Gemini
 
 Esta aplicación utiliza Google Gemini para varios fines:
 
-- **Análisis de imágenes** de recibos eléctricos
-- **Reconocimiento de etiquetas** de electrodomésticos
-- **Asistente virtual** para responder consultas relacionadas con ahorro energético
+- Analisis de imagenes de recibos electricos
+- Reconocimiento de electrodomesticos
+- Scanner multimodal para deteccion de consumo fantasma (Vampire Scanner)
+- Asistente virtual conversacional de ahorro energetico
 
 Los scripts en la carpeta `/scripts` demuestran diferentes maneras de utilizar la API:
 
@@ -45,20 +88,30 @@ Los scripts en la carpeta `/scripts` demuestran diferentes maneras de utilizar l
 
 ## Componentes principales
 
-- `src/components/Assistant.tsx`: Chatbot integrado con Gemini
-- `src/components/ImageUploader.tsx`: Componente para subir y analizar imágenes
-- `src/services/geminiService.ts`: Servicio para comunicarse con la API de Gemini
+- src/components/ImageUploader.tsx
+- src/components/ReceiptScreen.tsx
+- src/components/AppliancesScreen.tsx
+- src/components/HomeScreen.tsx
+- src/services/geminiService.ts
+- src/services/vampireScannerService.ts
+- src/services/greenTokenService.ts
 
 ## Uso de la API de Gemini
 
-La aplicación utiliza Google Gemini para el análisis de imágenes y el asistente conversacional. El servicio `geminiService.ts` ofrece varias funciones:
+La aplicacion utiliza Google Gemini para analisis de imagenes y asistente conversacional. El servicio geminiService.ts ofrece varias funciones:
 
-- `queryImage`: Analiza una imagen con un prompt específico
-- `queryMultipleImages`: Analiza múltiples imágenes juntas
-- `chatWithGemini`: Envía un mensaje de texto al modelo conversacional
+- queryImage: analiza imagen con prompt
+- queryMultipleImages: procesa multiples imagenes en una consulta
+- chatWithGemini: responde mensajes del usuario
 
-La API key está incluida directamente en el código para simplificar el proceso de desarrollo.
+## Alcance del hackathon
+
+Durante el hackathon, el objetivo es validar que la combinacion de IA + UX:
+- mejora comprension del recibo,
+- conecta acciones con impacto medible,
+- y crea incentivos de ahorro sostenibles mediante Green Tokens.
 
 ## Licencia
 
 MIT
+ 

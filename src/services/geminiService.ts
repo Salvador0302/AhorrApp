@@ -63,7 +63,8 @@ export async function fileToBase64(file: File): Promise<string> {
 export async function queryImage(
   imageBase64: string, 
   mimeType: string, 
-  promptText: string
+  promptText: string,
+  model = "gemini-2.5-flash"
 ): Promise<{ rawText: string; jsonData: any | null }> {
   const contents = [
     { inlineData: { mimeType, data: imageBase64 } },
@@ -72,7 +73,7 @@ export async function queryImage(
 
   try {
     const res = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model,
       contents,
     });
 
@@ -94,7 +95,7 @@ export async function queryImage(
       try {
         const cleanPrompt = `La respuesta anterior fue:\n\n${rawText}\n\nPor favor, convierte la respuesta anterior en JSON válido y devuelve SOLO el JSON.`;
         const clean = await ai.models.generateContent({
-          model: "gemini-2.5-flash",
+          model,
           contents: [{ text: cleanPrompt }],
         });
         const cleanText = clean.text || "";
@@ -150,4 +151,4 @@ export async function chatWithGemini(message: string): Promise<string> {
     console.error("Error al chatear con Gemini:", error);
     return "Lo siento, tuve un problema al procesar tu mensaje. Por favor, inténtalo de nuevo.";
   }
-}
+} 

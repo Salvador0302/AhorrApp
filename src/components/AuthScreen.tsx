@@ -168,4 +168,4 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   );
 };
 
-export default AuthScreen;
+export default AuthScreen; 

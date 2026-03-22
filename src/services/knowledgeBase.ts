@@ -320,3 +320,4 @@ export function queryKnowledgeBase(
 
   return null; // No se encontró información específica
 }
+ 

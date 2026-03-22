@@ -44,8 +44,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ type, onProcessed, onErro
       
       let prompt = '';
       if (type === 'receipt') {
-        prompt = `Extrae del recibo: periodo, kWh facturados, costo total en S/. 
-                  Devuélvelo SOLO en JSON EXACTO con llaves: {periodo, kWh, costo}. 
+        prompt = `Extrae del recibo: periodo, kWh facturados del mes actual, kWh del mes anterior (si aparece), costo total en S/. 
+                  Devuélvelo SOLO en JSON EXACTO con llaves: {periodo, kWh, kWh_anterior, costo}. 
                   Sin texto adicional, sin explicaciones.`;
       } else {
         prompt = `Extrae de la etiqueta: potencia (W) y modelo. 
@@ -145,4 +145,4 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ type, onProcessed, onErro
   );
 };
 
-export default ImageUploader;
+export default ImageUploader; 

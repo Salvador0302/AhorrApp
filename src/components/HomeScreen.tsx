@@ -6,6 +6,8 @@ import projAnio from '../assets/projections/1año.png';
 import { formatCurrency } from '../utils/currency';
 import { Zap, TrendingUp, DollarSign, Camera, FileText, Lightbulb, Home, Receipt, Plug, Sparkles, CreditCard, BarChart3, CheckCircle2, Clock } from 'lucide-react';
 import type { Screen } from '../App';
+import { getGreenTokenBalance } from '../services/greenTokenService';
+import { getLatestVampireScan } from '../services/vampireScannerService';
 
 interface User {
   id: string;
@@ -45,6 +47,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
   const totalAppliances = appliances.length;
   const totalConsumption = appliances.reduce((sum, app) => sum + (app.consumption * app.hoursPerDay), 0);
   const estimatedMonthlyCost = totalConsumption * 30 * 0.15; // Estimación básica
+  const greenTokens = getGreenTokenBalance();
+  const latestVampireScan = getLatestVampireScan();
 
   const quickActions = [
     {
@@ -111,7 +115,37 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
           </p>
           <p className="text-white/40 text-xs">mensual</p>
         </div>
+
+        <div className="bg-emerald-500/10 rounded-lg border border-emerald-300/20 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-emerald-200" />
+            <span className="text-emerald-100/80 text-xs font-normal">Green Tokens</span>
+          </div>
+          <p className="text-2xl font-medium text-white mb-0.5">{greenTokens}</p>
+          <p className="text-emerald-100/70 text-xs">GTKN acumulados</p>
+        </div>
+
+        <div className="bg-blue-500/10 rounded-lg border border-blue-300/20 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="w-4 h-4 text-blue-200" />
+            <span className="text-blue-100/80 text-xs font-normal">ROI Scanner</span>
+          </div>
+          <p className="text-2xl font-medium text-white mb-0.5">
+            {latestVampireScan ? (Number.isFinite(latestVampireScan.roiMonths) ? latestVampireScan.roiMonths.toFixed(1) : '-') : '-'}
+          </p>
+          <p className="text-blue-100/70 text-xs">meses (ultimo analisis)</p>
+        </div>
       </div>
+
+      {latestVampireScan && (
+        <div className="bg-white/5 rounded-lg border border-white/10 p-4">
+          <h3 className="text-white font-medium mb-2 text-sm">Escaner Inteligente IA Vision</h3>
+          <p className="text-white/70 text-sm">
+            Equipo detectado en categoria <span className="capitalize">{latestVampireScan.category}</span> con consumo estimado de {Math.round(latestVampireScan.averageWatts)}W.
+            Cambiar a modelo Energy Star A++ podria ahorrar {formatCurrency(latestVampireScan.monthlySavingsSoles)} al mes.
+          </p>
+        </div>
+      )}
 
       {/* Progress Overview */}
       <div className="bg-white/5 rounded-lg border border-white/10 p-4">
@@ -242,4 +276,4 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
   );
 };
 
-export default HomeScreen;
+export default HomeScreen; 

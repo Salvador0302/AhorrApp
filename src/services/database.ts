@@ -136,9 +136,41 @@ export function getLatestReceipt(): ReceiptRecord | null {
  */
 export function getAllReceipts(): ReceiptRecord[] {
   const db = getDB();
-  return db.receipts.sort((a, b) => 
+  return [...db.receipts].sort((a, b) => 
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+}
+
+export interface ReceiptTrendItem {
+  id: string;
+  period: string;
+  consumption: number;
+  amount: number;
+  createdAt: string;
+  changeVsPreviousPercent: number | null;
+}
+
+/**
+ * Devuelve los ultimos recibos con variacion porcentual vs el mes previo.
+ */
+export function getReceiptTrend(limit = 6): ReceiptTrendItem[] {
+  const receipts = getAllReceipts().slice(0, limit);
+
+  return receipts.map((receipt, index) => {
+    const previous = receipts[index + 1];
+    const changeVsPreviousPercent = previous && previous.consumption > 0
+      ? Number((((receipt.consumption - previous.consumption) / previous.consumption) * 100).toFixed(2))
+      : null;
+
+    return {
+      id: receipt.id,
+      period: receipt.period,
+      consumption: receipt.consumption,
+      amount: receipt.amount,
+      createdAt: receipt.createdAt,
+      changeVsPreviousPercent
+    };
+  });
 }
 
 /**
@@ -308,3 +340,4 @@ export function importDatabase(jsonData: string): boolean {
     return false;
   }
 }
+ 
