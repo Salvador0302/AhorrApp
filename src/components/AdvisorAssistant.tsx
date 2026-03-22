@@ -30,6 +30,8 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  // Evita envíos múltiples por doble evento (Enter + click) o taps rápidos
+  const sendingRef = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -191,7 +193,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
   const handleSend = async () => {
     const trimmed = inputValue.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed || isLoading || sendingRef.current) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -202,6 +204,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    sendingRef.current = true;
 
     const loadingId = Date.now().toString();
     const loadingMessage: Message = {
@@ -233,6 +236,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       );
     } finally {
       setIsLoading(false);
+      sendingRef.current = false;
     }
   };
 
@@ -247,7 +251,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl z-30 hover:scale-110 transition-transform duration-300 group"
+        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
         style={{
           boxShadow: '0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(236, 72, 153, 0.2)'
         }}
@@ -260,7 +264,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-30 flex flex-col overflow-hidden"
+      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-purple-900/90 to-pink-900/85 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
       style={{
         boxShadow: '0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
         maxHeight: 'calc(100vh - 200px)'

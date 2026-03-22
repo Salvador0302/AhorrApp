@@ -26,6 +26,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -139,7 +140,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
   const handleSend = async () => {
     const trimmed = inputValue.trim();
-    if (!trimmed) return;
+    if (!trimmed || isLoading) return;
     
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -148,7 +149,8 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+  setInputValue('');
+  setIsLoading(true);
     
     const loadingId = Date.now().toString();
     const loadingMessage: Message = {
@@ -178,6 +180,8 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
           ]
         } : msg
       ));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -203,7 +207,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl z-30 hover:scale-110 transition-transform duration-300 group"
+        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl z-50 hover:scale-110 transition-transform duration-300 group"
         style={{
           boxShadow: '0 0 30px rgba(59, 130, 246, 0.4), 0 0 60px rgba(6, 182, 212, 0.2)'
         }}
@@ -216,7 +220,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
   return (
     <div 
-      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-30 flex flex-col overflow-hidden"
+      className="fixed bottom-24 right-4 left-4 md:left-auto md:w-[420px] bg-gradient-to-br from-gray-900/95 via-blue-900/90 to-cyan-900/85 backdrop-blur-xl rounded-3xl border border-blue-500/30 shadow-2xl z-50 flex flex-col overflow-hidden"
       style={{
         boxShadow: '0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(6, 182, 212, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5)',
         maxHeight: 'calc(100vh - 200px)' // Asegura que nunca sea más alto que la ventana menos espacio para ver el header
@@ -350,18 +354,19 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={hasReceipt && hasAppliances ? "¡Registro completo! ¿Alguna pregunta?" : "Pregúntame lo que necesites..."}
-            className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15"
+            className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-300 hover:bg-white/15 disabled:opacity-40"
             aria-label="Mensaje para el asistente"
+            disabled={isLoading}
           />
           <button
             onClick={handleSend}
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isLoading}
             className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:scale-105 flex items-center gap-2"
           >
-            {!inputValue.trim() ? (
+            {isLoading ? (
               <>
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Enviar</span>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="hidden sm:inline">Pensando...</span>
               </>
             ) : (
               <>
