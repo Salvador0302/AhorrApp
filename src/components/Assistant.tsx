@@ -48,7 +48,7 @@ const Assistant: React.FC<AssistantProps> = ({
     // Initialize with welcome message
     const welcomeMessage: Message = {
       id: '1',
-      text: '¡Hola! 👋 Soy tu asistente de AhorraPE. Te ayudo a optimizar tu consumo energético. ¿Por dónde quieres empezar?',
+      text: '¡Hola! 👋 Soy tu asistente de AhorrApp. Te ayudo a optimizar tu consumo energético. ¿Por dónde quieres empezar?',
       isBot: true,
       timestamp: new Date(),
       actions: [
@@ -148,7 +148,7 @@ const Assistant: React.FC<AssistantProps> = ({
         case 'history':
           newMessage = {
             id: `context-history-${Date.now()}`,
-            text: '📊 En tu historial puedes ver todos tus pagos anteriores y el ahorro acumulado con AhorraPE.',
+            text: '📊 En tu historial puedes ver todos tus pagos anteriores y el ahorro acumulado con AhorrApp.',
             isBot: true,
             timestamp: new Date()
           };
@@ -206,7 +206,7 @@ const Assistant: React.FC<AssistantProps> = ({
     try {
       // Crear un prompt enriquecido con contexto para Gemini
       const contextPrompt = `
-        Actúas como el asistente virtual de AhorraPE, una aplicación para ayudar a usuarios a ahorrar en su consumo eléctrico.
+        Actúas como el asistente virtual de AhorrApp, una aplicación para ayudar a usuarios a ahorrar en su consumo eléctrico.
         Contexto actual:
         - Pantalla actual: ${getScreenName(currentScreen)}
         - Usuario ha subido recibo: ${hasReceipt ? 'Sí' : 'No'}
@@ -349,7 +349,7 @@ const Assistant: React.FC<AssistantProps> = ({
             <span className="text-white text-sm">🤖</span>
           </div>
           <div>
-            <h3 className="text-white font-semibold text-sm">Asistente AhorraPE</h3>
+            <h3 className="text-white font-semibold text-sm">Asistente AhorrApp</h3>
             <p className="text-white/60 text-xs">{getProgressMessage()}</p>
           </div>
         </div>

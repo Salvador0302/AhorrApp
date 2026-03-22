@@ -35,7 +35,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
   useEffect(() => {
     // Mensaje de bienvenida conversacional - SOLO al montar el componente
-    let welcomeText = 'Hola, soy tu Asistente Virtual de AhorraPE.\n\n';
+    let welcomeText = 'Hola, soy tu Asistente Virtual de AhorrApp.\n\n';
     
     if (!hasReceipt && !hasAppliances) {
       welcomeText += 'Para comenzar a optimizar tu consumo energético, necesito que:\n\n';
@@ -79,7 +79,7 @@ const DataAssistant: React.FC<DataAssistantProps> = ({
 
     try {
       const contextPrompt = `
-        Eres el Asistente Virtual de AhorraPE. Tu función es ayudar a los usuarios a:
+        Eres el Asistente Virtual de AhorrApp. Tu función es ayudar a los usuarios a:
         1. Subir y registrar su recibo de luz
         2. Registrar sus electrodomésticos (manualmente o con cámara)
         

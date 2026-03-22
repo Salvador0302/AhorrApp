@@ -146,7 +146,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
           </div>
           <p className="text-white/80 text-sm">
             Hemos gestionado un ahorro del 10% ({formatCurrency(savings)}) que se aplicará a tu próxima factura. 
-            ¡Sigue usando AhorraPE para maximizar tus ahorros!
+            ¡Sigue usando AhorrApp para maximizar tus ahorros!
           </p>
         </div>
       </div>
@@ -325,11 +325,11 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
         </div>
       </div>
 
-      {/* AhorraPE Management */}
+      {/* AhorrApp Management */}
       <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-md rounded-xl border border-green-400/20 p-4">
         <div className="flex items-center gap-2 mb-3">
           <DollarSign className="w-5 h-5 text-green-400" />
-          <span className="text-green-400 font-medium">Gestión AhorraPE</span>
+          <span className="text-green-400 font-medium">Gestión AhorrApp</span>
         </div>
         
         <div className="space-y-2">
@@ -370,7 +370,7 @@ const PaymentScreen: React.FC<PaymentScreenProps> = ({ receipt, onNavigate }) =>
 
       {/* Benefits */}
       <div className="bg-blue-500/10 backdrop-blur-md rounded-xl border border-blue-400/20 p-4">
-        <h4 className="text-blue-400 font-medium mb-2">Beneficios del Pago con AhorraPE</h4>
+        <h4 className="text-blue-400 font-medium mb-2">Beneficios del Pago con AhorrApp</h4>
         <ul className="text-white/80 text-sm space-y-1">
           <li>✓ Gestión automática de ahorros</li>
           <li>✓ Pago seguro y encriptado</li>

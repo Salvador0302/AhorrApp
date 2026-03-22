@@ -41,9 +41,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
       <div className="w-full max-w-sm">
         {/* Logo and Title */}
         <div className="text-center mb-6 sm:mb-8">
-          <img src={logoImg} alt="Logo AhorraPE" className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl mx-auto mb-4 shadow-lg border border-white/10" />
+          <img src={logoImg} alt="Logo AhorrApp" className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl mx-auto mb-4 shadow-lg border border-white/10" />
           <h1 className="text-3xl sm:text-4xl font-semibold text-white mb-2 tracking-tight">
-            AhorraPE
+            AhorrApp
           </h1>
           <p className="text-white/60 text-sm sm:text-base">
             Optimiza tu consumo energético con IA
