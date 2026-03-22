@@ -1,4 +1,4 @@
-# AhorrApp - Asistente con Gemini
+# AhorrApp - Asistente con Gemini.
 
 Esta aplicación ayuda a los usuarios a optimizar su consumo eléctrico mediante el análisis inteligente de recibos y electrodomésticos.
 
