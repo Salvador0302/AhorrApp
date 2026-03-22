@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { formatCurrency } from '../utils/currency';
-import { Lightbulb, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Lightbulb, ArrowLeft, CheckCircle, Moon, Wind, Shirt, Snowflake, Tv, Plug } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface Receipt {
@@ -38,7 +38,7 @@ interface Recommendation {
   difficulty: 'Fácil' | 'Medio' | 'Difícil';
   appliance?: string;
   timeframe: string;
-  icon: string;
+  icon: React.ComponentType<any>;
   completed: boolean;
 }
 
@@ -63,7 +63,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         savingsPercent: 8,
         difficulty: 'Fácil',
         timeframe: 'Inmediato',
-        icon: '🌙',
+        icon: Moon,
         completed: false
       });
     }
@@ -80,7 +80,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         difficulty: 'Fácil',
         appliance: ac.name,
         timeframe: '1 semana',
-        icon: '🌬️',
+        icon: Wind,
         completed: false
       });
     }
@@ -96,7 +96,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         difficulty: 'Fácil',
         appliance: washer.name,
         timeframe: 'Continuo',
-        icon: '👕',
+        icon: Shirt,
         completed: false
       });
     }
@@ -112,7 +112,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         difficulty: 'Medio',
         appliance: fridge.name,
         timeframe: '2-3 días',
-        icon: '❄️',
+        icon: Snowflake,
         completed: false
       });
     }
@@ -128,7 +128,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         difficulty: 'Medio',
         appliance: tv.name,
         timeframe: 'Continuo',
-        icon: '📺',
+        icon: Tv,
         completed: false
       });
     }
@@ -142,7 +142,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
       savingsPercent: 10,
       difficulty: 'Fácil',
       timeframe: '1 día',
-      icon: '💡',
+      icon: Lightbulb,
       completed: false
     });
 
@@ -220,12 +220,12 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
             >
               <div className="flex items-start gap-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  isCompleted ? 'bg-green-500/20' : 'bg-white/20'
+                  isCompleted ? 'bg-white/10' : 'bg-white/5'
                 }`}>
                   {isCompleted ? (
-                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <CheckCircle className="w-5 h-5 text-white/60" />
                   ) : (
-                    <span className="text-lg">{recommendation.icon}</span>
+                    <recommendation.icon className="w-5 h-5 text-white/60" />
                   )}
                 </div>
                 
@@ -267,9 +267,10 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
                   {recommendation.appliance && (
                     <div className="mb-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs ${
-                        isCompleted ? 'bg-white/5 text-white/50' : 'bg-purple-500/20 text-purple-400'
+                        isCompleted ? 'bg-white/5 text-white/50' : 'bg-white/10 text-white/60'
                       }`}>
-                        🔌 {recommendation.appliance}
+                        <Plug className="w-3 h-3" />
+                        {recommendation.appliance}
                       </span>
                     </div>
                   )}
@@ -277,7 +278,7 @@ const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
                   {!isCompleted && (
                     <button
                       onClick={() => handleCompleteRecommendation(recommendation.id)}
-                      className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white font-medium py-2 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2"
+                      className="w-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium py-2 rounded-lg transition-all flex items-center justify-center gap-2"
                     >
                       <CheckCircle className="w-4 h-4" />
                       Marcar como Completada

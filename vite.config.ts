@@ -8,11 +8,12 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    // Configuración para Codespaces
     host: '0.0.0.0',
     port: 3000,
+    strictPort: false,
     hmr: {
-      clientPort: 443,
+      protocol: 'ws',
+      port: 3000,
     },
   },
 });

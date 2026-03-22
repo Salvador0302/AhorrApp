@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 // Ajuste: no existe logo.svg, usamos logo.jpg
 import logoImg from './assets/logo.jpg';
+import { Home, FileText, Plug, Lightbulb, CreditCard, BarChart3 } from 'lucide-react';
 import AuthScreen from './components/AuthScreen';
 import HomeScreen from './components/HomeScreen';
 import ReceiptScreen from './components/ReceiptScreen';
@@ -180,22 +181,22 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="bg-black/20 backdrop-blur-md border-b border-white/10 px-4 py-3 sticky top-0 z-40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={logoImg} alt="AhorrApp" className="w-8 h-8 object-cover" />
+      <header className="bg-slate-900/80 backdrop-blur-lg border-b border-white/5 px-4 sm:px-6 py-3 sticky top-0 z-40">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-white/5 rounded-lg flex items-center justify-center overflow-hidden ring-1 ring-white/10">
+              <img src={logoImg} alt="AhorrApp" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+            <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
               AhorrApp
             </h1>
           </div>
           
           <button
             onClick={handleLogout}
-            className="text-white/70 hover:text-white text-sm"
+            className="text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
           >
             Salir
           </button>
@@ -203,7 +204,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="pb-20">
+      <main className="pb-20 sm:pb-24">
         {renderScreen()}
       </main>
 
@@ -233,29 +234,32 @@ function App() {
       )}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10 px-4 py-2">
-        <div className="flex justify-around">
+      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/5 px-2 sm:px-4 py-2 safe-area-inset-bottom">
+        <div className="flex justify-around max-w-2xl mx-auto">
           {[
-            { id: 'home', label: 'Inicio', icon: '🏠' },
-            { id: 'receipt', label: 'Recibo', icon: '📄' },
-            { id: 'appliances', label: 'Aparatos', icon: '🔌' },
-            { id: 'recommendations', label: 'Tips', icon: '💡' },
-            { id: 'payment', label: 'Pagar', icon: '💳' },
-            { id: 'history', label: 'Historial', icon: '📊' }
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentScreen(item.id as Screen)}
-              className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all ${
-                currentScreen === item.id
-                  ? 'bg-gradient-to-r from-blue-500/20 to-green-500/20 text-white'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+            { id: 'home', label: 'Inicio', icon: Home },
+            { id: 'receipt', label: 'Recibo', icon: FileText },
+            { id: 'appliances', label: 'Aparatos', icon: Plug },
+            { id: 'recommendations', label: 'Tips', icon: Lightbulb },
+            { id: 'payment', label: 'Pagar', icon: CreditCard },
+            { id: 'history', label: 'Historial', icon: BarChart3 }
+          ].map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentScreen(item.id as Screen)}
+                className={`flex flex-col items-center gap-1 py-2 px-2 sm:px-3 rounded-lg transition-all min-w-[60px] ${
+                  currentScreen === item.id
+                    ? 'text-white'
+                    : 'text-white/40 hover:text-white/60'
+                }`}
+              >
+                <IconComponent className={`w-5 h-5 ${currentScreen === item.id ? 'text-white' : 'text-white/40'}`} />
+                <span className="text-[10px] sm:text-xs font-normal leading-tight">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
@@ -263,15 +267,13 @@ function App() {
       {!showAssistant && (
         <button
           onClick={() => setShowAssistant(true)}
-          className={`fixed bottom-24 right-4 w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-30 ${
-            receipt && appliances.length > 0
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500'
-              : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-          }`}
+          className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-xl z-30 transition-transform hover:scale-110 active:scale-95 bg-slate-800 hover:bg-slate-700 border border-white/10`}
         >
-          <span className="text-white text-xl">
-            {receipt && appliances.length > 0 ? '💡' : '📋'}
-          </span>
+          {receipt && appliances.length > 0 ? (
+            <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          ) : (
+            <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          )}
         </button>
       )}
     </div>

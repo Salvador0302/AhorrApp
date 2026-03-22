@@ -65,7 +65,7 @@ const AdvisorAssistant: React.FC<AdvisorAssistantProps> = ({
       // Construir base de conocimientos para personalizar el saludo
       const kb = buildKnowledgeBase(receipt, appliances);
       
-      let welcomeText = `👋 ¡Hola! Soy tu Asistente Virtual de AhorrApp. `;
+      let welcomeText = `👋 ¡Hola! Soy tu Asistente Virtual de AhorraPE. `;
       
       if (kb.receipt.exists && kb.appliances.total > 0) {
         welcomeText += `\n\n📊 He analizado tu información:\n`;

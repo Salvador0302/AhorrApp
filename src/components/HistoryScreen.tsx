@@ -349,7 +349,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onNavigate }) => {
         </div>
         <div className="mt-2 pt-2 border-t border-white/10">
           <p className="text-white/60 text-xs">
-            💡 Has ahorrado el {((totalSavings / totalPaid) * 100).toFixed(1)}% con AhorrApp
+            💡 Has ahorrado el {((totalSavings / totalPaid) * 100).toFixed(1)}% con AhorraPE
           </p>
         </div>
       </div>

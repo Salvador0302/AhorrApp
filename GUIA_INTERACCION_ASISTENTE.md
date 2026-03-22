@@ -1,8 +1,8 @@
-# Guía de Interacción con el Asistente AhorrApp
+# Guía de Interacción con el Asistente AhorraPE
 
 ## 🤖 Sistema de Base de Conocimientos
 
-El Asistente AhorrApp ahora cuenta con un **sistema de base de conocimientos** que compila y estructura toda la metadata extraída de tus recibos y electrodomésticos. Esto le permite responder preguntas específicas con datos precisos y personalizados.
+El Asistente AhorraPE ahora cuenta con un **sistema de base de conocimientos** que compila y estructura toda la metadata extraída de tus recibos y electrodomésticos. Esto le permite responder preguntas específicas con datos precisos y personalizados.
 
 ---
 

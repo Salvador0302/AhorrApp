@@ -37,42 +37,42 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-sm">
         {/* Logo and Title */}
-        <div className="text-center mb-6">
-          <img src={logoImg} alt="Logo AhorrApp" className="w-20 h-20 object-cover rounded-2xl mx-auto mb-3 shadow-lg border-2 border-white/30" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2">
-            AhorrApp
+        <div className="text-center mb-6 sm:mb-8">
+          <img src={logoImg} alt="Logo AhorraPE" className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl mx-auto mb-4 shadow-lg border border-white/10" />
+          <h1 className="text-3xl sm:text-4xl font-semibold text-white mb-2 tracking-tight">
+            AhorraPE
           </h1>
-          <p className="text-white/70 text-base">
+          <p className="text-white/60 text-sm sm:text-base">
             Optimiza tu consumo energético con IA
           </p>
-          <div className="flex items-center justify-center gap-2 mt-2 text-white/50">
+          <div className="flex items-center justify-center gap-2 mt-3 text-white/40">
             <Smartphone className="w-4 h-4" />
-            <span className="text-sm">Versión Móvil</span>
+            <span className="text-xs sm:text-sm">Versión Móvil</span>
           </div>
         </div>
 
         {/* Auth Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
-          <div className="flex mb-4">
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8 shadow-xl">
+          <div className="flex mb-6 bg-white/5 rounded-xl p-1">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all text-sm ${
+              className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all text-sm ${
                 isLogin
-                  ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
-                  : 'text-white/70 hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-white/60 hover:text-white/80'
               }`}
             >
               Iniciar Sesión
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-3 rounded-xl font-medium transition-all text-sm ${
+              className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all text-sm ${
                 !isLogin
-                  ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg'
-                  : 'text-white/70 hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-white/60 hover:text-white/80'
               }`}
             >
               Registrarse
@@ -145,7 +145,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold py-4 rounded-xl hover:from-blue-600 hover:to-green-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
             </button>

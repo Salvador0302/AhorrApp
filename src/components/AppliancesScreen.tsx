@@ -1,6 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { formatCurrency } from '../utils/currency';
-import { Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap, Trash2 } from 'lucide-react';
+import { 
+  Camera, Plus, CreditCard as Edit3, ArrowLeft, Zap, Trash2, 
+  Snowflake, Wind, Shirt, Tv, Microwave, Fan, Laptop, 
+  Flame, Droplet, Battery, Square, UtensilsCrossed
+} from 'lucide-react';
 import type { Screen } from '../App';
 import { fileToBase64, queryImage } from '../services/geminiService';
 
@@ -35,19 +39,19 @@ const AppliancesScreen: React.FC<AppliancesScreenProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const commonAppliances = [
-    { name: 'Refrigerador', type: 'cooling', consumption: 150, icon: '❄️' },
-    { name: 'Aire Acondicionado', type: 'cooling', consumption: 2000, icon: '🌬️' },
-    { name: 'Lavadora', type: 'cleaning', consumption: 500, icon: '👕' },
-    { name: 'Televisor', type: 'entertainment', consumption: 100, icon: '📺' },
-    { name: 'Microondas', type: 'cooking', consumption: 800, icon: '🍽️' },
-    { name: 'Plancha', type: 'cleaning', consumption: 1000, icon: '👔' },
-    { name: 'Ventilador', type: 'cooling', consumption: 75, icon: '🌀' },
-    { name: 'Computadora', type: 'electronics', consumption: 200, icon: '💻' },
-    { name: 'Cocina a Electrica', type: 'cooking', consumption: 4500, icon: '🔥' },
-    { name: 'Licuadora', type: 'cooking', consumption: 300, icon: '🥤' },
-    { name: 'Ducha Eléctrica', type: 'heating', consumption: 5500, icon: '🚿' },
-    { name: 'Arrocera', type: 'cooking', consumption: 400, icon: '🍚' },
-    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: '🔌' }
+    { name: 'Refrigerador', type: 'cooling', consumption: 150, icon: Snowflake },
+    { name: 'Aire Acondicionado', type: 'cooling', consumption: 2000, icon: Wind },
+    { name: 'Lavadora', type: 'cleaning', consumption: 500, icon: Shirt },
+    { name: 'Televisor', type: 'entertainment', consumption: 100, icon: Tv },
+    { name: 'Microondas', type: 'cooking', consumption: 800, icon: Microwave },
+    { name: 'Plancha', type: 'cleaning', consumption: 1000, icon: Square },
+    { name: 'Ventilador', type: 'cooling', consumption: 75, icon: Fan },
+    { name: 'Computadora', type: 'electronics', consumption: 200, icon: Laptop },
+    { name: 'Cocina a Electrica', type: 'cooking', consumption: 4500, icon: Flame },
+    { name: 'Licuadora', type: 'cooking', consumption: 300, icon: Droplet },
+    { name: 'Ducha Eléctrica', type: 'heating', consumption: 5500, icon: Droplet },
+    { name: 'Arrocera', type: 'cooking', consumption: 400, icon: UtensilsCrossed },
+    { name: 'Cargadores', type: 'electronics', consumption: 20, icon: Battery }
   ];
 
   const handleImageCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,7 +171,7 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
     }
   };
 
-  const handleManualAdd = (appliance: { name: string; type: string; consumption: number; icon: string }) => {
+  const handleManualAdd = (appliance: { name: string; type: string; consumption: number; icon: React.ComponentType<any> }) => {
     const newAppliance: Appliance = {
       id: Date.now().toString(),
       name: appliance.name,
@@ -195,14 +199,16 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
   };
 
   const getApplianceIcon = (type: string) => {
-    const icons: { [key: string]: string } = {
-      cooling: '❄️',
-      cleaning: '🧽',
-      entertainment: '📺',
-      cooking: '🍽️',
-      electronics: '💻'
+    const icons: { [key: string]: React.ComponentType<any> } = {
+      cooling: Snowflake,
+      cleaning: Shirt,
+      entertainment: Tv,
+      cooking: Microwave,
+      heating: Droplet,
+      electronics: Laptop
     };
-    return icons[type] || '⚡';
+    const IconComponent = icons[type] || Zap;
+    return <IconComponent className="w-5 h-5" />;
   };
 
   const totalDailyConsumption = appliances.reduce((sum, app) => sum + (app.consumption * app.hoursPerDay / 1000), 0);
@@ -240,38 +246,38 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
       </div>
 
       {/* Summary */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
+      <div className="bg-white/5 rounded-lg border border-white/10 p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">{appliances.length}</p>
-            <p className="text-white/70 text-sm">Aparatos registrados</p>
+            <p className="text-2xl font-medium text-white">{appliances.length}</p>
+            <p className="text-white/40 text-xs mt-1">Aparatos</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">{formatCurrency(Number(estimatedMonthlyCost.toFixed(0)), { decimals: 0 })}</p>
-            <p className="text-white/70 text-sm">Costo estimado/mes</p>
+            <p className="text-2xl font-medium text-white">{formatCurrency(Number(estimatedMonthlyCost.toFixed(0)), { decimals: 0 })}</p>
+            <p className="text-white/40 text-xs mt-1">Costo/mes</p>
           </div>
         </div>
       </div>
 
       {/* Add Appliance Options */}
       <div className="space-y-4">
-        <h3 className="text-white font-semibold">Agregar Electrodoméstico</h3>
+        <h3 className="text-white font-medium text-sm">Agregar Electrodoméstico</h3>
         
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all flex flex-col items-center gap-2"
+            className="bg-white/5 border border-white/10 text-white font-medium py-4 rounded-lg hover:bg-white/10 transition-all flex flex-col items-center gap-2"
           >
-            <Camera className="w-6 h-6" />
-            <span className="text-sm">Detectar con IA</span>
+            <Camera className="w-5 h-5 text-white/70" />
+            <span className="text-xs text-white/70">Detectar con IA</span>
           </button>
           
           <button
             onClick={() => {/* Show manual selection */}}
-            className="bg-white/10 border border-white/20 text-white font-semibold py-4 rounded-xl hover:bg-white/20 transition-all flex flex-col items-center gap-2"
+            className="bg-white/5 border border-white/10 text-white font-medium py-4 rounded-lg hover:bg-white/10 transition-all flex flex-col items-center gap-2"
           >
-            <Plus className="w-6 h-6" />
-            <span className="text-sm">Agregar Manual</span>
+            <Plus className="w-5 h-5 text-white/70" />
+            <span className="text-xs text-white/70">Agregar Manual</span>
           </button>
         </div>
         
@@ -287,25 +293,28 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
 
       {/* Common Appliances */}
       <div className="space-y-3">
-        <h4 className="text-white/80 font-medium">Electrodomésticos Comunes</h4>
+        <h4 className="text-white/60 font-medium text-sm">Electrodomésticos Comunes</h4>
         <div className="grid grid-cols-2 gap-2">
           {commonAppliances
             .filter(appliance => appliance.name && appliance.consumption)
-            .map((appliance, index) => (
-              <button
-                key={`${appliance.name}-${index}`}
-                onClick={() => handleManualAdd(appliance)}
-                className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all text-left"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{appliance.icon}</span>
-                  <div>
-                    <p className="text-white text-sm font-medium">{appliance.name}</p>
-                    <p className="text-white/60 text-xs">{appliance.consumption}W</p>
+            .map((appliance, index) => {
+              const IconComponent = appliance.icon;
+              return (
+                <button
+                  key={`${appliance.name}-${index}`}
+                  onClick={() => handleManualAdd(appliance)}
+                  className="bg-white/5 border border-white/10 rounded-lg p-3 hover:bg-white/10 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="w-5 h-5 text-white/60" />
+                    <div>
+                      <p className="text-white text-sm font-medium">{appliance.name}</p>
+                      <p className="text-white/40 text-xs">{appliance.consumption}W</p>
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
         </div>
       </div>
 
@@ -313,7 +322,7 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
       {appliances.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-white font-semibold">Tus Electrodomésticos</h3>
+            <h3 className="text-white font-medium text-sm">Tus Electrodomésticos</h3>
             <button
               onClick={() => {
                 if (confirm(`¿Estás seguro de eliminar TODOS los ${appliances.length} electrodomésticos?`)) {
@@ -328,7 +337,7 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
           </div>
           
           {appliances.map((appliance) => (
-            <div key={appliance.id} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
+            <div key={appliance.id} className="bg-white/5 rounded-lg border border-white/10 p-4">
               <div className="flex items-start gap-3">
                 {appliance.image ? (
                   <img 
@@ -337,8 +346,8 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                     className="w-12 h-12 rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-                    <span className="text-lg">{getApplianceIcon(appliance.type)}</span>
+                  <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
+                    {getApplianceIcon(appliance.type)}
                   </div>
                 )}
                 
@@ -348,10 +357,10 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                     <div className="flex gap-1">
                       <button
                         onClick={() => handleEdit(appliance)}
-                        className="p-1 rounded bg-blue-500/20 hover:bg-blue-500/30 transition-colors"
+                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 transition-colors"
                         aria-label="Editar electrodoméstico"
                       >
-                        <Edit3 className="w-4 h-4 text-blue-400" />
+                        <Edit3 className="w-4 h-4 text-white/60" />
                       </button>
                       <button
                         onClick={() => {
@@ -359,10 +368,10 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                             onApplianceDelete(appliance.id);
                           }
                         }}
-                        className="p-1 rounded bg-red-500/20 hover:bg-red-500/30 transition-colors"
+                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 transition-colors"
                         aria-label="Eliminar electrodoméstico"
                       >
-                        <Trash2 className="w-4 h-4 text-red-400" />
+                        <Trash2 className="w-4 h-4 text-white/60" />
                       </button>
                     </div>
                   </div>
@@ -392,13 +401,13 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                       <div className="flex gap-2">
                         <button
                           onClick={handleSaveEdit}
-                          className="px-3 py-1 bg-green-500/20 text-green-400 rounded text-sm"
+                          className="px-3 py-1 bg-white/10 hover:bg-white/15 text-white rounded text-sm transition-colors"
                         >
                           Guardar
                         </button>
                         <button
                           onClick={() => setEditingAppliance(null)}
-                          className="px-3 py-1 bg-white/10 text-white/70 rounded text-sm"
+                          className="px-3 py-1 bg-white/5 hover:bg-white/10 text-white/60 rounded text-sm transition-colors"
                         >
                           Cancelar
                         </button>
@@ -425,8 +434,8 @@ NO agregues explicaciones, NO agregues texto adicional, SOLO el JSON.`;
                   
                   {appliance.detected && (
                     <div className="mt-2 flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-yellow-400" />
-                      <span className="text-yellow-400 text-xs">Detectado por IA</span>
+                      <Zap className="w-3 h-3 text-white/50" />
+                      <span className="text-white/50 text-xs">Detectado por IA</span>
                     </div>
                   )}
                 </div>

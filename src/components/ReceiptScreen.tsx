@@ -52,27 +52,27 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
   }
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => onNavigate('home')}
-          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <h2 className="text-xl font-bold text-white">Análisis de Recibo</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-white">Análisis de Recibo</h2>
       </div>
 
       {!receipt ? (
         <>
           {/* Upload Section */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6 text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8 text-white" />
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h3 className="text-white font-semibold text-lg mb-2">Sube tu recibo de luz</h3>
-            <p className="text-white/70 text-sm mb-6">
+            <h3 className="text-white font-semibold text-lg sm:text-xl mb-2">Sube tu recibo de luz</h3>
+            <p className="text-white/60 text-sm sm:text-base mb-6 sm:mb-8">
               Toma una foto o selecciona una imagen de tu factura eléctrica
             </p>
             
@@ -102,12 +102,12 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
           </div>
 
           {/* Info Section */}
-          <div className="bg-blue-500/10 backdrop-blur-md rounded-xl border border-blue-400/20 p-4">
+          <div className="bg-blue-500/10 backdrop-blur-sm rounded-xl border border-blue-500/20 p-4 sm:p-5">
             <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-400 mt-0.5" />
+              <Info className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="text-blue-400 font-medium mb-1">¿Qué información extraemos?</h4>
-                <ul className="text-white/70 text-sm space-y-1">
+                <h4 className="text-blue-400 font-medium mb-2 text-sm sm:text-base">¿Qué información extraemos?</h4>
+                <ul className="text-white/60 text-sm space-y-1.5">
                   <li>• Consumo en kWh del período</li>
                   <li>• Monto total a pagar</li>
                   <li>• Comparación con mes anterior</li>
@@ -120,9 +120,9 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
       ) : (
         <>
           {/* Receipt Analysis Results */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
-            <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-green-400" />
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-5 sm:p-6">
+            <h3 className="text-white font-semibold text-lg sm:text-xl mb-4 sm:mb-5 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-400" />
               Resumen de tu Recibo
             </h3>
             {justProcessed && (
@@ -228,16 +228,16 @@ const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ onReceiptUpload, receipt,
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => onNavigate('payment')}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all"
+              className="bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium py-3 rounded-lg transition-all"
             >
-              💳 Pagar Recibo
+              Pagar Recibo
             </button>
             
             <button
               onClick={() => onNavigate('recommendations')}
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold py-3 rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all"
+              className="bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium py-3 rounded-lg transition-all"
             >
-              💡 Ver Tips
+              Ver Tips
             </button>
           </div>
 

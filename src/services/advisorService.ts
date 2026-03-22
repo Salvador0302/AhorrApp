@@ -78,7 +78,7 @@ export async function generatePersonalizedRecommendation(
     if (quickAnswer) {
       // Si encontramos una respuesta directa, complementamos con Gemini para hacerla más conversacional
       const enhancePrompt = `
-Eres el Asistente de Recomendaciones de AhorrApp. 
+Eres el Asistente de Recomendaciones de AhorraPE. 
 Información: "${quickAnswer}"
 Pregunta del usuario: "${userQuestion}"
 
@@ -95,7 +95,7 @@ Usa emojis relevantes. Si es apropiado, añade un consejo relacionado breve.
 
   const prompt = userQuestion
     ? `
-Eres el Asistente de Recomendaciones de AhorrApp, un experto en optimización de consumo energético.
+Eres el Asistente de Recomendaciones de AhorraPE, un experto en optimización de consumo energético.
 Tienes acceso a una base de conocimientos completa sobre el usuario:
 
 ${contextText}
@@ -118,7 +118,7 @@ EJEMPLOS DE BUEN USO DE LA BASE DE CONOCIMIENTOS:
 - "Si reduces el uso de tu Aire Acondicionado de 10h a 6h diarias, ahorrarías $18/mes"
 `
     : `
-Eres el Asistente de Recomendaciones de AhorrApp.
+Eres el Asistente de Recomendaciones de AhorraPE.
 
 ${contextText}
 

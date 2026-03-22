@@ -4,7 +4,7 @@ import proj7d from '../assets/projections/7dias.png';
 import projMes from '../assets/projections/1mes.png';
 import projAnio from '../assets/projections/1año.png';
 import { formatCurrency } from '../utils/currency';
-import { Zap, TrendingUp, DollarSign, Camera, FileText, Lightbulb } from 'lucide-react';
+import { Zap, TrendingUp, DollarSign, Camera, FileText, Lightbulb, Home, Receipt, Plug, Sparkles, CreditCard, BarChart3, CheckCircle2, Clock } from 'lucide-react';
 import type { Screen } from '../App';
 
 interface User {
@@ -77,67 +77,81 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
   ];
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-w-4xl mx-auto">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-500/10 to-green-500/10 backdrop-blur-md rounded-2xl border border-white/10 p-6">
-        <h2 className="text-xl font-bold text-white mb-2">
-          ¡Hola, {user.name}! 👋
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-5 sm:p-6">
+        <h2 className="text-xl sm:text-2xl font-medium text-white mb-1">
+          Hola, {user.name}
         </h2>
-        <p className="text-white/70 text-sm">
-          Bienvenido a tu asistente de ahorro energético
+        <p className="text-white/50 text-sm">
+          Asistente de ahorro energético
         </p>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-blue-400" />
-            <span className="text-white/80 text-sm font-medium">Consumo Est.</span>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/5 rounded-lg border border-white/10 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-4 h-4 text-white/60" />
+            <span className="text-white/50 text-xs font-normal">Consumo</span>
           </div>
-          <p className="text-xl font-bold text-white">
-            {totalConsumption.toFixed(1)} kWh
+          <p className="text-2xl font-medium text-white mb-0.5">
+            {totalConsumption.toFixed(1)}
           </p>
-          <p className="text-white/60 text-xs">por día</p>
+          <p className="text-white/40 text-xs">kWh/día</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-5 h-5 text-green-400" />
-            <span className="text-white/80 text-sm font-medium">Costo Est.</span>
+        <div className="bg-white/5 rounded-lg border border-white/10 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <DollarSign className="w-4 h-4 text-white/60" />
+            <span className="text-white/50 text-xs font-normal">Costo</span>
           </div>
-          <p className="text-xl font-bold text-white">
+          <p className="text-2xl font-medium text-white mb-0.5">
             {formatCurrency(Number(estimatedMonthlyCost.toFixed(0)), { decimals: 0 })}
           </p>
-          <p className="text-white/60 text-xs">por mes</p>
+          <p className="text-white/40 text-xs">mensual</p>
         </div>
       </div>
 
       {/* Progress Overview */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
-        <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-purple-400" />
-          Tu Progreso
+      <div className="bg-white/5 rounded-lg border border-white/10 p-4">
+        <h3 className="text-white font-medium mb-4 flex items-center gap-2 text-sm">
+          <TrendingUp className="w-4 h-4 text-white/60" />
+          Progreso
         </h3>
         
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-white/70 text-sm">Recibo analizado</span>
-            <span className={`text-sm font-medium ${receipt ? 'text-green-400' : 'text-white/50'}`}>
-              {receipt ? '✓ Completado' : 'Pendiente'}
-            </span>
+            <span className="text-white/50 text-sm">Recibo</span>
+            <div className="flex items-center gap-1.5">
+              {receipt ? (
+                <CheckCircle2 className="w-4 h-4 text-white/60" />
+              ) : (
+                <Clock className="w-4 h-4 text-white/30" />
+              )}
+              <span className={`text-sm ${receipt ? 'text-white/80' : 'text-white/40'}`}>
+                {receipt ? 'Completado' : 'Pendiente'}
+              </span>
+            </div>
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-white/70 text-sm">Aparatos registrados</span>
-            <span className={`text-sm font-medium ${totalAppliances > 0 ? 'text-green-400' : 'text-white/50'}`}>
-              {totalAppliances > 0 ? `${totalAppliances} aparatos` : 'Ninguno'}
-            </span>
+            <span className="text-white/50 text-sm">Aparatos</span>
+            <div className="flex items-center gap-1.5">
+              {totalAppliances > 0 ? (
+                <CheckCircle2 className="w-4 h-4 text-white/60" />
+              ) : (
+                <Clock className="w-4 h-4 text-white/30" />
+              )}
+              <span className={`text-sm ${totalAppliances > 0 ? 'text-white/80' : 'text-white/40'}`}>
+                {totalAppliances > 0 ? `${totalAppliances}` : '0'}
+              </span>
+            </div>
           </div>
           
-          <div className="w-full bg-white/10 rounded-full h-2">
+          <div className="w-full bg-white/10 rounded-full h-1 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-blue-400 to-green-400 h-2 rounded-full transition-all duration-500"
+              className="bg-white/30 h-1 rounded-full transition-all duration-500"
               style={{ width: `${((receipt ? 50 : 0) + (totalAppliances > 0 ? 50 : 0))}%` }}
             />
           </div>
@@ -145,32 +159,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
       </div>
 
       {/* Quick Actions */}
-      <div className="space-y-3">
-        <h3 className="text-white font-semibold text-lg">Acciones Rápidas</h3>
-        
+      <div className="space-y-2">
         {quickActions.map((action) => {
           const IconComponent = action.icon;
           return (
             <button
               key={action.id}
               onClick={() => onNavigate(action.screen)}
-              className={`w-full bg-gradient-to-r ${action.color} bg-opacity-20 backdrop-blur-md rounded-xl border border-white/20 p-4 text-left hover:bg-opacity-30 transition-all`}
+              className={`w-full bg-white/5 rounded-lg border border-white/10 p-4 text-left hover:bg-white/10 transition-all group`}
             >
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 bg-gradient-to-r ${action.color} rounded-xl flex items-center justify-center`}>
-                  <IconComponent className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  <IconComponent className="w-5 h-5 text-white/70" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-white font-semibold">{action.title}</h4>
+                    <h4 className="text-white font-medium text-sm">{action.title}</h4>
                     {action.completed && (
-                      <span className="text-green-400 text-sm">✓</span>
+                      <CheckCircle2 className="w-4 h-4 text-white/50" />
                     )}
                   </div>
-                  <p className="text-white/70 text-sm">{action.description}</p>
-                </div>
-                <div className="text-white/50">
-                  →
+                  <p className="text-white/40 text-xs mt-0.5">{action.description}</p>
                 </div>
               </div>
             </button>
@@ -180,21 +189,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
 
       {/* Recent Activity */}
       {(receipt || totalAppliances > 0) && (
-        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4">
-          <h3 className="text-white font-semibold mb-3">Actividad Reciente</h3>
+        <div className="bg-white/5 rounded-lg border border-white/10 p-4">
+          <h3 className="text-white font-medium mb-3 text-sm">Actividad</h3>
           
           <div className="space-y-2">
             {receipt && (
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-white/70">Recibo de {receipt.period} analizado</span>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                <span className="text-white/50">Recibo {receipt.period}</span>
               </div>
             )}
             
             {totalAppliances > 0 && (
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-white/70">{totalAppliances} electrodomésticos registrados</span>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
+                <span className="text-white/50">{totalAppliances} aparatos</span>
               </div>
             )}
           </div>
@@ -202,12 +211,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
       )}
 
       {/* Proyecciones (Previews) */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/10 p-4 space-y-3">
+      <div className="bg-white/5 rounded-lg border border-white/10 p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-white font-semibold text-lg">Consumo & Proyección</h3>
+          <h3 className="text-white font-medium text-sm">Proyecciones</h3>
           <button
             onClick={() => onNavigate('history')}
-            className="text-xs text-blue-400 hover:text-blue-300"
+            className="text-xs text-white/50 hover:text-white/70 transition-colors"
           >Ver más</button>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -219,10 +228,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ user, onNavigate, receipt, appl
             <button
               key={item.id}
               onClick={() => { localStorage.setItem('history_view', item.id); onNavigate('history'); }}
-              className="group relative rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-colors"
+              className="group relative rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-all"
             >
               <img src={item.img} alt={`Proyección ${item.label}`} className="w-full h-20 object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] py-1 text-center font-medium backdrop-blur-sm">
+              <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] py-1 text-center backdrop-blur-sm">
                 {item.label}
               </span>
             </button>

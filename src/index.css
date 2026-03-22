@@ -2,10 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Animaciones personalizadas para el Asistente */
+/* Variables de diseño personalizadas */
+:root {
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-secondary: 34 197 94; /* green-500 */
+  --color-accent: 168 85 247; /* purple-500 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Mejoras de tipografía */
+@layer base {
+  * {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply text-base;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Animaciones personalizadas */
 @layer utilities {
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
   }
   
   .scrollbar-hide {
@@ -16,16 +47,50 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  
+  /* Mejoras responsivas */
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Cards más profesionales */
+  .card {
+    @apply bg-white/5 backdrop-blur-sm rounded-xl border border-white/10;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+  
+  .card-elevated {
+    @apply bg-white/10 backdrop-blur-md rounded-xl border border-white/20;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejoras de scroll suave */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
